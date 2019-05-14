@@ -1,3 +1,17 @@
+// Copyright 2019 The redis-operator Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package redis
 
 import (
@@ -75,18 +89,18 @@ var (
 	// that are not supposed to be changed or those controlled by redis-operator.
 	// Sorted in order of appearance in https://github.com/antirez/redis/blob/5.0/redis.conf
 	excludedConfigDirectives = map[string]struct{}{
-		"include":               struct{}{},
-		"bind":                  struct{}{},
-		"protected-mode":        struct{}{},
-		"port":                  struct{}{},
-		"daemonize":             struct{}{},
-		"dir":                   struct{}{},
-		"replica-announce-ip":   struct{}{},
-		"replica-announce-port": struct{}{},
-		"replicaof":             struct{}{},
-		"masterauth":            struct{}{},
-		"requirepass":           struct{}{},
-		"rename-command":        struct{}{},
+		"include":               {},
+		"bind":                  {},
+		"protected-mode":        {},
+		"port":                  {},
+		"daemonize":             {},
+		"dir":                   {},
+		"replica-announce-ip":   {},
+		"replica-announce-port": {},
+		"replicaof":             {},
+		"masterauth":            {},
+		"requirepass":           {},
+		"rename-command":        {},
 	}
 	argonThreads = uint8(runtime.NumCPU())
 )

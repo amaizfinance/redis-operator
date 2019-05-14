@@ -146,4 +146,4 @@ Once the reconfiguration has been finished all `Pod`s are labeled appropriately 
 
 ### Short term
 
-- [] add more testing
+- [ ] add more testing

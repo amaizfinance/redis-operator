@@ -148,15 +148,15 @@ type Redises []Redis
 // sort.Interface implementation for Redises.
 // Allows to choose an instance with a lesser priority and higher replication offset.
 // Note that this assumes that Redises don't have replicas with ReplicaPriority == 0
-func (a Redises) Len() int      { return len(a) }
-func (a Redises) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a Redises) Less(i, j int) bool {
+func (instances Redises) Len() int      { return len(instances) }
+func (instances Redises) Swap(i, j int) { instances[i], instances[j] = instances[j], instances[i] }
+func (instances Redises) Less(i, j int) bool {
 	// choose a replica with less replica priority
 	// choose a bigger replication offset otherwise
-	if a[i].ReplicaPriority == a[j].ReplicaPriority {
-		return a[i].ReplicationOffset > a[j].ReplicationOffset
+	if instances[i].ReplicaPriority == instances[j].ReplicaPriority {
+		return instances[i].ReplicationOffset > instances[j].ReplicationOffset
 	}
-	return a[i].ReplicaPriority < a[j].ReplicaPriority
+	return instances[i].ReplicaPriority < instances[j].ReplicaPriority
 }
 
 // strict implementation check

@@ -1,3 +1,17 @@
+// Copyright 2019 The redis-operator Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package redis
 
 import (
@@ -44,7 +58,7 @@ func Test_deepContains(t *testing.T) {
 		Tinterface: basic,
 		Tpointer:   &basic,
 		Tstruct:    basic,
-		Tmap:       map[basicStruct]basicStruct{basic: basic, basicStruct{Tstring: "o"}: basic},
+		Tmap:       map[basicStruct]basicStruct{basic: basic, {Tstring: "o"}: basic},
 	}
 
 	f := func() {}
@@ -73,13 +87,13 @@ func Test_deepContains(t *testing.T) {
 		// composite
 		{"composite-empty", args{compositeStruct{}, compositeStruct{}}, true},
 		{"composite-equal", args{composite, composite}, true},
-		{"composite-Tarray-true", args{composite, compositeStruct{Tarray: [2]basicStruct{basicStruct{Tstring: "o"}, basicStruct{}}}}, true},
-		{"composite-Tslice-true", args{composite, compositeStruct{Tslice: []basicStruct{basicStruct{Tstring: "o"}}}}, true},
-		{"composite-Tinterface-true", args{composite, compositeStruct{Tslice: []basicStruct{basicStruct{Tstring: "o"}}}}, true},
+		{"composite-Tarray-true", args{composite, compositeStruct{Tarray: [2]basicStruct{{Tstring: "o"}, {}}}}, true},
+		{"composite-Tslice-true", args{composite, compositeStruct{Tslice: []basicStruct{{Tstring: "o"}}}}, true},
+		{"composite-Tinterface-true", args{composite, compositeStruct{Tslice: []basicStruct{{Tstring: "o"}}}}, true},
 		{"composite-Tstruct-true", args{composite, compositeStruct{Tstruct: basicStruct{Tstring: "o"}}}, true},
 		{"composite-Tpointer-true", args{composite, compositeStruct{Tpointer: &basicStruct{Tstring: "o"}}}, true},
 		{"composite-Tpointer-deep-true", args{compositeStruct{Tinterface: &[]basicStruct{basic}}, compositeStruct{Tinterface: &[]basicStruct{basic}}}, true},
-		{"composite-Tmap-true", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basic: basicStruct{Tstring: "o"}}}}, true},
+		{"composite-Tmap-true", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basic: {Tstring: "o"}}}}, true},
 
 		// negative tests
 		// basic
@@ -92,17 +106,17 @@ func Test_deepContains(t *testing.T) {
 		{"basic-Tuint-false", args{basic, basicStruct{Tuint: uint(2)}}, false},
 		{"basic-Tfloat32-false", args{basic, basicStruct{Tfloat32: math.E}}, false},
 		// composite
-		{"composite-Tarray-false", args{composite, compositeStruct{Tarray: [2]basicStruct{basicStruct{Tstring: "oo"}, basicStruct{}}}}, false},
-		{"composite-Tslice-false", args{composite, compositeStruct{Tslice: []basicStruct{basicStruct{Tstring: "oo"}, basicStruct{}, basicStruct{}, basicStruct{}}}}, false},
-		{"composite-Tinterface-false", args{composite, compositeStruct{Tslice: []basicStruct{basicStruct{Tstring: "oo"}}}}, false},
+		{"composite-Tarray-false", args{composite, compositeStruct{Tarray: [2]basicStruct{{Tstring: "oo"}, {}}}}, false},
+		{"composite-Tslice-false", args{composite, compositeStruct{Tslice: []basicStruct{{Tstring: "oo"}, {}, {}, {}}}}, false},
+		{"composite-Tinterface-false", args{composite, compositeStruct{Tslice: []basicStruct{{Tstring: "oo"}}}}, false},
 		{"composite-Tinterface-deepFunc-false", args{compositeStruct{Tinterface: f}, compositeStruct{Tinterface: f}}, false},
 		{"composite-Tstruct-false", args{composite, compositeStruct{Tstruct: basicStruct{Tstring: "oo"}}}, false},
 		{"composite-Tpointer-false", args{composite, compositeStruct{Tpointer: &basicStruct{Tstring: "oo"}}}, false},
-		{"composite-Tpointer-deep-false", args{compositeStruct{Tinterface: &[]basicStruct{basic}}, compositeStruct{Tinterface: &[]basicStruct{basicStruct{Tstring: "oo"}}}}, false},
+		{"composite-Tpointer-deep-false", args{compositeStruct{Tinterface: &[]basicStruct{basic}}, compositeStruct{Tinterface: &[]basicStruct{{Tstring: "oo"}}}}, false},
 		{"composite-Tpointer-deepType-false", args{compositeStruct{Tinterface: &[]basicStruct{basic}}, compositeStruct{Tinterface: &[]int{}}}, false},
-		{"composite-Tmap-falseValue", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basic: basicStruct{Tstring: "oo"}}}}, false},
-		{"composite-Tmap-falseKey", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basicStruct{}: basicStruct{Tstring: "o"}}}}, false},
-		{"composite-Tmap-falseLen", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basicStruct{Tstring: "o"}: basicStruct{}, basicStruct{Tstring: "oo"}: basicStruct{}, basicStruct{Tstring: "ooo"}: basicStruct{}}}}, false},
+		{"composite-Tmap-falseValue", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{basic: {Tstring: "oo"}}}}, false},
+		{"composite-Tmap-falseKey", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{{}: {Tstring: "o"}}}}, false},
+		{"composite-Tmap-falseLen", args{composite, compositeStruct{Tmap: map[basicStruct]basicStruct{{Tstring: "o"}: {}, {Tstring: "oo"}: {}, {Tstring: "ooo"}: {}}}}, false},
 	}
 
 	for _, tt := range tests {
