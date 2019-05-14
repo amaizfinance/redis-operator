@@ -1,5 +1,7 @@
 # Redis Operator
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/amaizfinance/redis-operator)](https://goreportcard.com/report/github.com/amaizfinance/redis-operator)
+
 ## Project status: alpha
 
 The basic features have been completed, and while no breaking API changes are currently planned, the API can change in a backwards incompatible way before the project is declared stable.
@@ -139,3 +141,9 @@ Once the reconfiguration has been finished all `Pod`s are labeled appropriately 
 [sentinel]: https://redis.io/topics/sentinel
 [leader-election]: https://github.com/operator-framework/operator-sdk/blob/v0.7.0/doc/user-guide.md#leader-election
 [info]: https://redis.io/commands/info
+
+## Plans
+
+### Short term
+
+- [] add more testing
