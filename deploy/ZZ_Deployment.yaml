@@ -21,10 +21,10 @@ spec:
       serviceAccountName: redis-operator
       containers:
       - name: redis-operator
-        image: amaiz/redis-operator:0.0.1
+        image: amaiz/redis-operator:0.0.2
         imagePullPolicy: Always
         env:
-        - name: WATCH_NAMESPACE
+        - name: WATCH_NAMESPACE # left empty to watch all namespaces
         - name: OPERATOR_NAME
           value: redis-operator
         - name: POD_NAME

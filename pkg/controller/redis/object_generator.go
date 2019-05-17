@@ -211,7 +211,7 @@ func generateService(r *k8sv1alpha1.Redis, serviceType int) (string, *corev1.Ser
 		Name:       redisName,
 		Protocol:   corev1.ProtocolTCP,
 		Port:       redisPort,
-		TargetPort: intstr.FromInt(exporterPort),
+		TargetPort: intstr.FromInt(redisPort),
 	}}
 	if !reflect.DeepEqual(r.Spec.Exporter, k8sv1alpha1.ContainerSpec{}) {
 		ports = append(ports, corev1.ServicePort{
