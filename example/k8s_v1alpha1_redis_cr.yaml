@@ -23,7 +23,7 @@ spec:
   config:
     repl-ping-replica-period: "10"
 
-  # Password allows to refer to a Secret containing password for Redis
+  # Password allows to refer to a Secret containing password for Redis. (optional)
   # Password should be strong enough. Passwords shorter than 8 characters
   # composed of ASCII alphanumeric symbols will lead to a mild warning logged by the Operator.
   # Please note that password hashes are added as annotations to Pods to enable
