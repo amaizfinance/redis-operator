@@ -67,6 +67,20 @@ spec:
     fsGroup: 7777777
     runAsNonRoot: true
 
+  # dataVolumeClaimTemplate allows to define a persistent volume template for Redis. (optional)
+  # If omitted, emptyDir will be used.
+  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#persistentvolumeclaim-v1-core
+#  dataVolumeClaimTemplate:
+#    metadata:
+#      name: redis-data
+#    spec:
+#      storageClassName: standard
+#      accessModes:
+#      - ReadWriteOnce
+#      resources:
+#        requests:
+#          storage: 1Gi
+
   # Redis container definition (required)
   # image, resources and securityContext are the same as found in v1.Container.
   # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#container-v1-core
@@ -85,7 +99,7 @@ spec:
 
   # Redis exporter container definition (optional)
   exporter:
-    image: oliver006/redis_exporter:v0.33.0
+    image: oliver006/redis_exporter:v1.0.3
     resources:
       limits:
         cpu: 50m

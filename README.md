@@ -1,6 +1,8 @@
 # Redis Operator
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/amaizfinance/redis-operator)](https://goreportcard.com/report/github.com/amaizfinance/redis-operator)
+[![GolangCI](https://golangci.com/badges/github.com/amaizfinance/redis-operator.svg)](https://golangci.com/r/github.com/amaizfinance/redis-operator)
+[![GoDoc](https://godoc.org/github.com/amaizfinance/redis-operator?status.svg)](https://godoc.org/github.com/amaizfinance/redis-operator)
 
 ## Project status: alpha
 

@@ -21,7 +21,7 @@ spec:
       serviceAccountName: redis-operator
       containers:
       - name: redis-operator
-        image: amaiz/redis-operator:0.0.2
+        image: amaiz/redis-operator:0.1.0
         imagePullPolicy: Always
         env:
         - name: WATCH_NAMESPACE # left empty to watch all namespaces
