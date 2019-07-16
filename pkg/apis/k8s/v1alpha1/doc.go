@@ -14,5 +14,6 @@
 
 // Package v1alpha1 contains API Schema definitions for the k8s v1alpha1 API group
 // +k8s:deepcopy-gen=package,register
+// +k8s:openapi-gen=true
 // +groupName=k8s.amaiz.com
 package v1alpha1

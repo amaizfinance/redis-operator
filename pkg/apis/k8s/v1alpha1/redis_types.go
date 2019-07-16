@@ -19,26 +19,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // Redis is the Schema for the redis API
-// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:printcolumn:name="Master",type="string",JSONPath=".status.master",description="Current master's Pod name"
-// +kubebuilder:printcolumn:name="Current",type="integer",JSONPath=".status.replicas",description="Current number of Redis instances"
+// +kubebuilder:printcolumn:name="Replicas",type="integer",JSONPath=".status.replicas",description="Current number of Redis instances"
 // +kubebuilder:printcolumn:name="Desired",type="integer",JSONPath=".spec.replicas",description="Desired number of Redis instances"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:subresource:status
-// +kubebuilder:subresource:scale:specpath=."spec.replicas",statuspath=".status.replicas"
+// +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas
 type Redis struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   RedisSpec   `json:"spec,omitempty"`
+	Spec   RedisSpec   `json:"spec"`
 	Status RedisStatus `json:"status,omitempty"`
 }
 
 // RedisSpec defines the desired state of Redis
-// +k8s:openapi-gen=true
 type RedisSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
@@ -86,14 +85,12 @@ type RedisSpec struct {
 // Hence it will not be able to connect to Pods with the ``old'' password.
 // In scenarios when persistence is turned off all the data will be lost
 // during password rotation.
-// +k8s:openapi-gen=true
 type Password struct {
 	// SecretKeyRef is a reference to the Secret in the same namespace containing the password.
 	SecretKeyRef *corev1.SecretKeySelector `json:"secretKeyRef"`
 }
 
 // ContainerSpec allows to set some container-specific attributes
-// +k8s:openapi-gen=true
 type ContainerSpec struct {
 	// Image is a standard path for a Container image
 	Image string `json:"image"`
@@ -103,8 +100,7 @@ type ContainerSpec struct {
 	SecurityContext *corev1.SecurityContext `json:"securityContext,omitempty"`
 }
 
-// RedisStatus defines the observed state of Redis
-// +k8s:openapi-gen=true
+// RedisStatus contains the observed state of Redis
 type RedisStatus struct {
 	// Replicas is the number of active Redis instances in the replication
 	Replicas int `json:"replicas"`
@@ -112,10 +108,8 @@ type RedisStatus struct {
 	Master string `json:"master"`
 }
 
+// RedisList is a list of Redis resources
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// RedisList contains a list of Redis resources
-// +k8s:openapi-gen=true
 type RedisList struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard list metadata. More info:

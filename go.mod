@@ -1,5 +1,7 @@
 module github.com/amaizfinance/redis-operator
 
+go 1.12
+
 require (
 	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible
