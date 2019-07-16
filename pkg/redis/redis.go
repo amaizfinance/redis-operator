@@ -29,6 +29,7 @@ import (
 )
 
 const (
+	// Port is a standard Redis port. Is not meant to change
 	Port = 6379
 
 	// MinimumFailoverSize sets the minimum desired size of Redis replication.
@@ -39,7 +40,7 @@ const (
 	// In such cases it is safe to run Redis replication failover and the risk of losing data is minimal.
 	MinimumFailoverSize = 2
 
-	// INFO REPLICATION fields
+	// Roles as seen in the info replication output
 	RoleMaster  = "role:master"
 	RoleReplica = "role:slave"
 
@@ -54,7 +55,7 @@ const (
 	masterPort        = "master_port"
 	masterLinkStatus  = "master_link_status"
 
-	// DefaultFailoverTimeout sets the maximum timeout for an exponential backoff timer
+	// DefaultFailoverTimeout sets the maximum timeout for the exponential backoff timer
 	DefaultFailoverTimeout = 5 * time.Second
 )
 
@@ -89,92 +90,86 @@ func buildInfoReplicationRe() *regexp.Regexp {
 		masterPort:        numTmpl,
 		masterLinkStatus:  strTmpl,
 	} {
-		fmt.Fprintf(&b, tmpl, name)
-		fmt.Fprint(&b, "|")
+		_, _ = fmt.Fprintf(&b, tmpl, name)
+		_, _ = fmt.Fprint(&b, "|")
 	}
 	// replica regexp is the most complex of all
-	fmt.Fprintf(&b, `^slave\d+:ip=%s,port=\d{1,5},state=\w+,offset=\d+,lag=\d+\s*?$`, addrRe)
+	_, _ = fmt.Fprintf(&b, `^slave\d+:ip=%s,port=\d{1,5},state=\w+,offset=\d+,lag=\d+\s*?$`, addrRe)
 	return regexp.MustCompile(b.String())
 }
 
-// Rediser defines the Redis methods
-type Rediser interface {
-	Ping() error
-
-	replicaOf(master Address) error
-	refresh(info string) error
-	getInfo() (string, error)
+// client is an extract of redis.Cmdable
+type client interface {
+	Ping() *redis.StatusCmd
+	Info(section ...string) *redis.StringCmd
+	TxPipelined(fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
+	Close() error
 }
 
-// Failover speaks for itself
-type Failover interface {
+// rediser defines the instance methods
+type rediser interface {
+	replicaOf(master Address) error
+	getInfo() (string, error)
+	refresh(info string) error
+}
+
+// Replication is the interface for checking the status of replication
+type Replication interface {
+	// Reconfigure checks the state of replication and reconfigures instances if needed
 	Reconfigure() error
-	SelectMaster() *Redis
+	// Size returns the total number of replicas
+	Size() int
+	// GetMasterAddress returns the current master address
+	GetMasterAddress() Address
+	// Refresh refreshes replication info for every instance
 	Refresh() error
+	// Disconnect closes connections to all instances
 	Disconnect()
 
-	promoteReplicaToMaster() (*Redis, error)
+	selectMaster() *instance
+	promoteReplicaToMaster() (*instance, error)
 	reconfigureAsReplicasOf(master Address) error
 }
 
-// Address represents the Host:Port pair of a Redis instance
+// Address represents the Host:Port pair of a instance instance
 type Address struct {
 	Host string
 	Port string
 }
 
-// Redis struct includes a subset of fields returned by INFO
-type Redis struct {
-	Address
-
-	Role              string
-	ReplicationOffset int
-
-	// master-specific fields
-	ConnectedReplicas int
-	Replicas          Redises
-
-	// replica-specific fields
-	ReplicaPriority  int
-	MasterHost       string
-	MasterPort       string
-	MasterLinkStatus string
-
-	conn *redis.Client
-}
-
-type Redises []Redis
-
-// sort.Interface implementation for Redises.
-// Allows to choose an instance with a lesser priority and higher replication offset.
-// Note that this assumes that Redises don't have replicas with ReplicaPriority == 0
-func (instances Redises) Len() int      { return len(instances) }
-func (instances Redises) Swap(i, j int) { instances[i], instances[j] = instances[j], instances[i] }
-func (instances Redises) Less(i, j int) bool {
-	// choose a replica with less replica priority
-	// choose a bigger replication offset otherwise
-	if instances[i].ReplicaPriority == instances[j].ReplicaPriority {
-		return instances[i].ReplicationOffset > instances[j].ReplicationOffset
-	}
-	return instances[i].ReplicaPriority < instances[j].ReplicaPriority
-}
-
-// strict implementation check
-var _ Rediser = (*Redis)(nil)
-var _ Failover = (*Redises)(nil)
-var _ sort.Interface = (*Redises)(nil)
-
 func (a Address) String() string {
 	return fmt.Sprintf("%s:%s", a.Host, a.Port)
 }
 
-// Ping errs on error if PING failed
-func (r *Redis) Ping() error {
-	return r.conn.Ping().Err()
+// strict implementation check
+var (
+	_ rediser        = (*instance)(nil)
+	_ Replication    = (*instances)(nil)
+	_ sort.Interface = (*instances)(nil)
+)
+
+// instance struct includes a subset of fields returned by INFO
+type instance struct {
+	Address
+
+	role              string
+	replicationOffset int
+
+	// master-specific fields
+	connectedReplicas int
+	replicas          instances
+
+	// replica-specific fields
+	replicaPriority  int
+	masterHost       string
+	masterPort       string
+	masterLinkStatus string
+
+	client client
 }
 
 // replicaOf changes the replication settings of a replica on the fly
-func (r *Redis) replicaOf(master Address) (err error) {
+func (i *instance) replicaOf(master Address) (err error) {
 	// promote replica to master
 	if master == (Address{}) {
 		master.Host = "NO"
@@ -190,7 +185,7 @@ func (r *Redis) replicaOf(master Address) (err error) {
 	 *
 	 * Note that we don't check the replies returned by commands, since we
 	 * will observe instead the effects in the next INFO output. */
-	_, err = r.conn.TxPipelined(func(pipe redis.Pipeliner) error {
+	_, err = i.client.TxPipelined(func(pipe redis.Pipeliner) error {
 		pipe.SlaveOf(master.Host, master.Port)
 		pipe.ClientKillByFilter("TYPE", "NORMAL")
 		return nil
@@ -199,22 +194,22 @@ func (r *Redis) replicaOf(master Address) (err error) {
 	return err
 }
 
-func (r *Redis) getInfo() (info string, err error) {
-	info, err = r.conn.Info("replication").Result()
+func (i *instance) getInfo() (info string, err error) {
+	info, err = i.client.Info("replication").Result()
 	if err != nil {
-		return "", fmt.Errorf("getting info replication failed for %s: %s", r.Address, err)
+		return "", fmt.Errorf("getting info replication failed for %s: %s", i.Address, err)
 	}
 	return
 }
 
 // refresh parses the instance info and updates the instance fields appropriately
-func (r *Redis) refresh(info string) error {
+func (i *instance) refresh(info string) error {
 	// parse info replication answer
 	switch {
 	case strings.Contains(info, RoleMaster):
-		r.Role = RoleMaster
+		i.role = RoleMaster
 	case strings.Contains(info, RoleReplica):
-		r.Role = RoleReplica
+		i.role = RoleReplica
 	default:
 		return errors.New("the role is wrong")
 	}
@@ -223,12 +218,12 @@ func (r *Redis) refresh(info string) error {
 	for _, parsed := range infoReplicationRe.FindAllString(info, -1) {
 		switch s := strings.TrimSpace(parsed); {
 		// master-specific
-		case r.Role == RoleMaster && strings.HasPrefix(s, connectedReplicas):
-			r.ConnectedReplicas = cast.ToInt(strings.Split(s, ":")[1])
-		case r.Role == RoleMaster && strings.HasPrefix(s, masterReplOffset):
-			r.ReplicationOffset = cast.ToInt(strings.Split(s, ":")[1])
-		case r.Role == RoleMaster && strings.HasPrefix(s, "slave"):
-			replica := Redis{}
+		case i.role == RoleMaster && strings.HasPrefix(s, connectedReplicas):
+			i.connectedReplicas = cast.ToInt(strings.Split(s, ":")[1])
+		case i.role == RoleMaster && strings.HasPrefix(s, masterReplOffset):
+			i.replicationOffset = cast.ToInt(strings.Split(s, ":")[1])
+		case i.role == RoleMaster && strings.HasPrefix(s, "slave"):
+			replica := instance{}
 			for _, field := range strings.Split(strings.Split(s, ":")[1], ",") {
 				switch {
 				case strings.HasPrefix(field, "ip="):
@@ -236,48 +231,66 @@ func (r *Redis) refresh(info string) error {
 				case strings.HasPrefix(field, "port="):
 					replica.Port = strings.Split(field, "=")[1]
 				case strings.HasPrefix(field, "offset="):
-					replica.ReplicationOffset = cast.ToInt(strings.Split(field, "=")[1])
+					replica.replicationOffset = cast.ToInt(strings.Split(field, "=")[1])
 				}
 			}
-			r.Replicas = append(r.Replicas, replica)
+			i.replicas = append(i.replicas, replica)
 
 		// replica-specific
-		case r.Role == RoleReplica && strings.HasPrefix(s, replicaPriority):
-			r.ReplicaPriority = cast.ToInt(strings.Split(s, ":")[1])
-		case r.Role == RoleReplica && strings.HasPrefix(s, replicationOffset):
-			r.ReplicationOffset = cast.ToInt(strings.Split(s, ":")[1])
-		case r.Role == RoleReplica && strings.HasPrefix(s, masterHost):
-			r.MasterHost = strings.Split(s, ":")[1]
-		case r.Role == RoleReplica && strings.HasPrefix(s, masterLinkStatus):
-			r.MasterLinkStatus = strings.Split(s, ":")[1]
-		case r.Role == RoleReplica && strings.HasPrefix(s, masterPort):
-			r.MasterPort = strings.Split(s, ":")[1]
+		case i.role == RoleReplica && strings.HasPrefix(s, replicaPriority):
+			i.replicaPriority = cast.ToInt(strings.Split(s, ":")[1])
+		case i.role == RoleReplica && strings.HasPrefix(s, replicationOffset):
+			i.replicationOffset = cast.ToInt(strings.Split(s, ":")[1])
+		case i.role == RoleReplica && strings.HasPrefix(s, masterHost):
+			i.masterHost = strings.Split(s, ":")[1]
+		case i.role == RoleReplica && strings.HasPrefix(s, masterLinkStatus):
+			i.masterLinkStatus = strings.Split(s, ":")[1]
+		case i.role == RoleReplica && strings.HasPrefix(s, masterPort):
+			i.masterPort = strings.Split(s, ":")[1]
 		}
 	}
 	return nil
 }
 
-// Reconfigure checks the state of the Redis replication and tries to fix/initially set the state.
+type instances []instance
+
+// sort.Interface implementation for instances.
+// Len returns the number of redis instances
+func (ins instances) Len() int { return len(ins) }
+
+// Swap swaps the elements with indexes i and j.
+func (ins instances) Swap(i, j int) { ins[i], ins[j] = ins[j], ins[i] }
+
+// Less chooses an instance with a lesser priority and higher replication offset.
+// Note that this assumes that instances don't have replicas with replicaPriority == 0
+func (ins instances) Less(i, j int) bool {
+	// choose a replica with less replica priority
+	// choose a bigger replication offset otherwise
+	if ins[i].replicaPriority == ins[j].replicaPriority {
+		return ins[i].replicationOffset > ins[j].replicationOffset
+	}
+	return ins[i].replicaPriority < ins[j].replicaPriority
+}
+
+// Reconfigure checks the state of the instance replication and tries to fix/initially set the state.
 // There should be only one master. All other instances should report the same master.
 // Working master serves as a source of truth. It means that only those replicas who are not reported by master
 // as its replicas will be reconfigured.
-func (instances Redises) Reconfigure() (err error) {
+func (ins instances) Reconfigure() (err error) {
 	// nothing to do here
-	if len(instances) == 0 {
+	if len(ins) == 0 {
 		return nil
 	}
 
-	var master *Redis
-	var replicas Redises
-	master = instances.SelectMaster()
+	master := ins.selectMaster()
 
 	// we've lost the master, promote a replica to master role
 	if master == nil {
-		var candidates Redises
+		var candidates instances
 		// filter out non-replicas
-		for i := range instances {
-			if instances[i].Role == RoleReplica && instances[i].ReplicaPriority != 0 {
-				candidates = append(candidates, instances[i])
+		for i := range ins {
+			if ins[i].role == RoleReplica && ins[i].replicaPriority != 0 {
+				candidates = append(candidates, ins[i])
 			}
 		}
 		master, err = candidates.promoteReplicaToMaster()
@@ -286,15 +299,16 @@ func (instances Redises) Reconfigure() (err error) {
 		}
 	}
 
-	// connectedReplicas will be needed to compile a slice of orphaned(not connected to current master) instances
-	connectedReplicas := map[Address]struct{}{}
-	for _, replica := range master.Replicas {
+	// connectedReplicas will be needed to compile a slice of orphaned(not connected to current master) ins
+	connectedReplicas := make(map[Address]struct{})
+	for _, replica := range master.replicas {
 		connectedReplicas[replica.Address] = struct{}{}
 	}
 
-	for i := range instances {
-		if _, there := connectedReplicas[instances[i].Address]; instances[i].Address != master.Address && !there {
-			replicas = append(replicas, instances[i])
+	var replicas instances
+	for i := range ins {
+		if _, there := connectedReplicas[ins[i].Address]; ins[i].Address != master.Address && !there {
+			replicas = append(replicas, ins[i])
 		}
 	}
 
@@ -302,49 +316,25 @@ func (instances Redises) Reconfigure() (err error) {
 	return replicas.reconfigureAsReplicasOf(master.Address)
 }
 
-// SelectMaster chooses any working master in case of a working replication or any other master otherwise.
-// Working master in this case is a master with at least one replica connected.
-func (instances Redises) SelectMaster() *Redis {
-	// normal state. we have a working replication with the master being online
-	for _, i := range instances {
-		// filter out replicas since they can also have their own replicas...
-		if i.Role == RoleReplica {
-			continue
-		}
+// Size returns the number of redis instances
+func (ins instances) Size() int { return len(ins) }
 
-		// we've found a working master
-		if i.ConnectedReplicas > 0 {
-			return &i
-		}
+func (ins instances) GetMasterAddress() Address {
+	if master := ins.selectMaster(); master != nil {
+		return master.Address
 	}
-
-	// If we have at least one replica it means
-	// we've lost the current master and need to promote a replica to a master
-	for _, i := range instances {
-		if i.Role == RoleReplica && i.ReplicaPriority != 0 {
-			return nil
-		}
-	}
-
-	// This is supposed to be an initial state.
-	// When you roll out a bunch of Redis instances initially they are all standalone masters.
-	// In this case we are free to choose the first one.
-	if len(instances) > 0 {
-		return &instances[0]
-	}
-
-	return nil
+	return Address{}
 }
 
 // Refresh fetches and refreshes info for all instances
-func (instances Redises) Refresh() error {
+func (ins instances) Refresh() error {
 	var wg sync.WaitGroup
-	instanceCount := len(instances)
+	instanceCount := len(ins)
 	ch := make(chan string, instanceCount)
 	wg.Add(instanceCount)
 
-	for i := range instances {
-		go func(i *Redis, wg *sync.WaitGroup) {
+	for i := range ins {
+		go func(i *instance, wg *sync.WaitGroup) {
 			defer wg.Done()
 			info, err := i.getInfo()
 			if err != nil {
@@ -355,7 +345,7 @@ func (instances Redises) Refresh() error {
 				ch <- fmt.Sprintf("%s: %s", i.Address, err)
 				return
 			}
-		}(&instances[i], &wg)
+		}(&ins[i], &wg)
 	}
 	wg.Wait()
 	close(ch)
@@ -364,7 +354,7 @@ func (instances Redises) Refresh() error {
 		var b strings.Builder
 		defer b.Reset()
 		for e := range ch {
-			fmt.Fprintf(&b, "%s;", e)
+			_, _ = fmt.Fprintf(&b, "%s;", e)
 		}
 		return errors.New(b.String())
 	}
@@ -372,16 +362,50 @@ func (instances Redises) Refresh() error {
 }
 
 // Disconnect closes the connections and releases the resources
-func (instances Redises) Disconnect() {
-	for i := range instances {
-		_ = instances[i].conn.Close()
+func (ins instances) Disconnect() {
+	for i := range ins {
+		_ = ins[i].client.Close()
 	}
 }
 
+// selectMaster chooses any working master in case of a working replication or any other master otherwise.
+// Working master in this case is a master with at least one replica connected.
+func (ins instances) selectMaster() *instance {
+	// normal state. we have a working replication with the master being online
+	for _, i := range ins {
+		// filter out replicas since they can also have their own replicas...
+		if i.role == RoleReplica {
+			continue
+		}
+
+		// we've found a working master
+		if i.connectedReplicas > 0 {
+			return &i
+		}
+	}
+
+	// If we have at least one replica it means
+	// we've lost the current master and need to promote a replica to a master
+	for _, i := range ins {
+		if i.role == RoleReplica && i.replicaPriority != 0 {
+			return nil
+		}
+	}
+
+	// This is supposed to be an initial state.
+	// When you roll out a bunch of Redis instances initially they are all standalone masters.
+	// In this case we are free to choose the first one.
+	if len(ins) > 0 {
+		return &ins[0]
+	}
+
+	return nil
+}
+
 // promoteReplicaToMaster selects a replica for promotion and promotes it to master role
-func (replicas Redises) promoteReplicaToMaster() (*Redis, error) {
-	sort.Sort(replicas)
-	promoted := &replicas[0]
+func (ins instances) promoteReplicaToMaster() (*instance, error) {
+	sort.Sort(ins)
+	promoted := &ins[0]
 	exponentialBackOff := backoff.NewExponentialBackOff()
 	exponentialBackOff.MaxElapsedTime = DefaultFailoverTimeout
 
@@ -398,28 +422,29 @@ func (replicas Redises) promoteReplicaToMaster() (*Redis, error) {
 		if err := promoted.refresh(info); err != nil {
 			return err
 		}
-		if promoted.Role != RoleMaster {
+		if promoted.role != RoleMaster {
 			return fmt.Errorf("still waiting for the replica %s to be promoted", promoted.Address)
 		}
 		return nil
 	}, exponentialBackOff)
 }
 
-func (replicas Redises) reconfigureAsReplicasOf(master Address) error {
+// reconfigureAsReplicasOf configures instances as replicas of the master
+func (ins instances) reconfigureAsReplicasOf(master Address) error {
 	// do it simultaneously for all replicas
 	var wg sync.WaitGroup
-	replicasCount := len(replicas)
+	replicasCount := len(ins)
 	ch := make(chan string, replicasCount)
 	wg.Add(replicasCount)
 
-	for i := range replicas {
-		go func(replica *Redis, wg *sync.WaitGroup) {
+	for i := range ins {
+		go func(replica *instance, wg *sync.WaitGroup) {
 			defer wg.Done()
 
 			if err := replica.replicaOf(master); err != nil {
 				ch <- fmt.Sprintf("error reconfiguring replica %s: %v", replica.Address, err)
 			}
-		}(&replicas[i], &wg)
+		}(&ins[i], &wg)
 	}
 	wg.Wait()
 	close(ch)
@@ -428,36 +453,42 @@ func (replicas Redises) reconfigureAsReplicasOf(master Address) error {
 		var b strings.Builder
 		defer b.Reset()
 		for e := range ch {
-			fmt.Fprintf(&b, "%s;", e)
+			_, _ = fmt.Fprintf(&b, "%s;", e)
 		}
 		return errors.New(b.String())
 	}
 	return nil
 }
 
-// NewInstances returns a new set of Redis instances.
-// If redis-operator fails to ping and refresh any of the connected instances NewInstances will return an error.
-func NewInstances(password string, addrs ...Address) (Redises, error) {
-	rs := Redises{}
+// New creates a new redis replication.
+// Instances are added on the best effort basis. It means that out of N addresses passed
+// if at least 2 instances are healthy the replication will be created. Otherwise New will return an error.
+func New(password string, addrs ...Address) (Replication, error) {
+	instances := make(instances, 0, len(addrs))
 	for _, addr := range addrs {
-		r := Redis{
+		r := instance{
 			Address: addr,
-			conn:    redis.NewClient(&redis.Options{Addr: addr.String(), Password: password}),
+			client:  redis.NewClient(&redis.Options{Addr: addr.String(), Password: password}),
 		}
 
 		// check connection and add the instance if Ping succeeds
-		if err := r.Ping(); err != nil {
+		if err := r.client.Ping().Err(); err != nil {
 			// TODO: handle -BUSY status
-			_ = r.conn.Close()
-			rs.Disconnect()
-			return nil, fmt.Errorf("ping failed for %s: %s", r.Host, err)
+			_ = r.client.Close()
+			continue
 		}
-		rs = append(rs, r)
+		instances = append(instances, r)
 	}
 
-	if err := rs.Refresh(); err != nil {
-		rs.Disconnect()
-		return nil, fmt.Errorf("refreshing Redis instances info failed: %s", err)
+	if len(instances) < MinimumFailoverSize {
+		instances.Disconnect()
+		return nil, fmt.Errorf("minimum replication size is not met, only %d are healthy", len(instances))
 	}
-	return rs, nil
+
+	if err := instances.Refresh(); err != nil {
+		instances.Disconnect()
+		return nil, fmt.Errorf("refreshing instance instances info failed: %s", err)
+	}
+
+	return instances, nil
 }

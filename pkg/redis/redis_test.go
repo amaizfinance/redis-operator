@@ -98,53 +98,53 @@ func Test_buildInfoReplicationRe(t *testing.T) {
 func TestRedises_Sort(t *testing.T) {
 	tests := []struct {
 		name string
-		have Redises
-		want Redises
+		have instances
+		want instances
 	}{
-		{"empty", Redises{}, Redises{}},
+		{"empty", instances{}, instances{}},
 		{
 			"unchanged",
-			Redises{
-				Redis{ReplicationOffset: 1238, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1238, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1236, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1234, ReplicaPriority: 100},
+			instances{
+				instance{replicationOffset: 1238, replicaPriority: 100},
+				instance{replicationOffset: 1238, replicaPriority: 100},
+				instance{replicationOffset: 1236, replicaPriority: 100},
+				instance{replicationOffset: 1234, replicaPriority: 100},
 			},
-			Redises{
-				Redis{ReplicationOffset: 1238, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1238, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1236, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 1234, ReplicaPriority: 100},
+			instances{
+				instance{replicationOffset: 1238, replicaPriority: 100},
+				instance{replicationOffset: 1238, replicaPriority: 100},
+				instance{replicationOffset: 1236, replicaPriority: 100},
+				instance{replicationOffset: 1234, replicaPriority: 100},
 			},
 		},
 		{
 			"sortByReplicationOffset",
-			Redises{
-				Redis{ReplicationOffset: 100},
-				Redis{ReplicationOffset: 12},
-				Redis{ReplicationOffset: 0},
-				Redis{ReplicationOffset: 1212},
+			instances{
+				instance{replicationOffset: 100},
+				instance{replicationOffset: 12},
+				instance{replicationOffset: 0},
+				instance{replicationOffset: 1212},
 			},
-			Redises{
-				Redis{ReplicationOffset: 1212},
-				Redis{ReplicationOffset: 100},
-				Redis{ReplicationOffset: 12},
-				Redis{ReplicationOffset: 0},
+			instances{
+				instance{replicationOffset: 1212},
+				instance{replicationOffset: 100},
+				instance{replicationOffset: 12},
+				instance{replicationOffset: 0},
 			},
 		},
 		{
 			"sortBySlavePriority",
-			Redises{
-				Redis{ReplicationOffset: 100, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 12, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 0, ReplicaPriority: 10},
-				Redis{ReplicationOffset: 1212, ReplicaPriority: 100},
+			instances{
+				instance{replicationOffset: 100, replicaPriority: 100},
+				instance{replicationOffset: 12, replicaPriority: 100},
+				instance{replicationOffset: 0, replicaPriority: 10},
+				instance{replicationOffset: 1212, replicaPriority: 100},
 			},
-			Redises{
-				Redis{ReplicationOffset: 0, ReplicaPriority: 10},
-				Redis{ReplicationOffset: 1212, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 100, ReplicaPriority: 100},
-				Redis{ReplicationOffset: 12, ReplicaPriority: 100},
+			instances{
+				instance{replicationOffset: 0, replicaPriority: 10},
+				instance{replicationOffset: 1212, replicaPriority: 100},
+				instance{replicationOffset: 100, replicaPriority: 100},
+				instance{replicationOffset: 12, replicaPriority: 100},
 			},
 		},
 	}
@@ -152,7 +152,7 @@ func TestRedises_Sort(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			sort.Sort(tt.have)
 			if !reflect.DeepEqual(tt.have, tt.want) {
-				t.Errorf("Redises.Sort() = %v, want %v", tt.have, tt.want)
+				t.Errorf("instances.Sort() = %v, want %v", tt.have, tt.want)
 			}
 		})
 	}
@@ -162,25 +162,25 @@ func TestRedis_refresh(t *testing.T) {
 	tests := []struct {
 		name    string
 		info    string
-		want    *Redis
+		want    *instance
 		wantErr bool
 	}{
-		{"err", "role:err", &Redis{}, true},
+		{"err", "role:err", &instance{}, true},
 		{
 			"master",
 			masterInfo,
-			&Redis{
-				Role:              RoleMaster,
-				ReplicationOffset: 47054,
-				ConnectedReplicas: 2,
-				Replicas: Redises{
-					Redis{
+			&instance{
+				role:              RoleMaster,
+				replicationOffset: 47054,
+				connectedReplicas: 2,
+				replicas: instances{
+					instance{
 						Address:           Address{"172.18.0.5", "6379"},
-						ReplicationOffset: 47054,
+						replicationOffset: 47054,
 					},
-					Redis{
+					instance{
 						Address:           Address{"172.18.0.4", "6379"},
-						ReplicationOffset: 47040,
+						replicationOffset: 47040,
 					},
 				},
 			},
@@ -189,25 +189,25 @@ func TestRedis_refresh(t *testing.T) {
 		{
 			"replica",
 			replicaInfo,
-			&Redis{
-				Role:              RoleReplica,
-				ReplicationOffset: 47054,
-				ReplicaPriority:   100,
-				MasterHost:        "172.18.0.2",
-				MasterPort:        "6379",
-				MasterLinkStatus:  "up",
+			&instance{
+				role:              RoleReplica,
+				replicationOffset: 47054,
+				replicaPriority:   100,
+				masterHost:        "172.18.0.2",
+				masterPort:        "6379",
+				masterLinkStatus:  "up",
 			},
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &Redis{}
+			r := &instance{}
 			if err := r.refresh(tt.info); (err != nil) != tt.wantErr {
-				t.Errorf("Redis.refresh()\nerror: %v\nwantErr: %v", err, tt.wantErr)
+				t.Errorf("instance.refresh()\nerror: %v\nwantErr: %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(r, tt.want) {
-				t.Errorf("Redis.refresh()\nhave: %+v\nwant: %+v", r, tt.want)
+				t.Errorf("instance.refresh()\nhave: %+v\nwant: %+v", r, tt.want)
 			}
 		})
 	}
@@ -216,100 +216,100 @@ func TestRedis_refresh(t *testing.T) {
 func TestRedises_SelectMaster(t *testing.T) {
 	tests := []struct {
 		name      string
-		instances Redises
-		want      *Redis
+		instances instances
+		want      *instance
 	}{
-		{"empty", Redises{}, nil},
+		{"empty", instances{}, nil},
 		{
 			"initial setup",
-			Redises{
-				Redis{
+			instances{
+				instance{
 					Address: Address{"172.18.0.5", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.6", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.7", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
 			},
-			&Redis{
+			&instance{
 				Address: Address{"172.18.0.5", "6379"},
-				Role:    RoleMaster,
+				role:    RoleMaster,
 			},
 		},
 		{
 			"master lost",
-			Redises{
-				Redis{
+			instances{
+				instance{
 					Address: Address{"172.18.0.5", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.6", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.7", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
-					Role:              RoleReplica,
-					ReplicationOffset: 47054,
-					ReplicaPriority:   100,
-					MasterHost:        "172.18.0.2",
-					MasterPort:        "6379",
-					MasterLinkStatus:  "up",
+				instance{
+					role:              RoleReplica,
+					replicationOffset: 47054,
+					replicaPriority:   100,
+					masterHost:        "172.18.0.2",
+					masterPort:        "6379",
+					masterLinkStatus:  "up",
 				},
 			},
 			nil,
 		},
 		{
 			"working master present",
-			Redises{
-				Redis{
+			instances{
+				instance{
 					Address: Address{"172.18.0.5", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.6", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
+				instance{
 					Address: Address{"172.18.0.7", "6379"},
-					Role:    RoleMaster,
+					role:    RoleMaster,
 				},
-				Redis{
-					Role:              RoleMaster,
-					ReplicationOffset: 47054,
-					ConnectedReplicas: 2,
-					Replicas: Redises{
-						Redis{
+				instance{
+					role:              RoleMaster,
+					replicationOffset: 47054,
+					connectedReplicas: 2,
+					replicas: instances{
+						instance{
 							Address:           Address{"172.18.0.5", "6379"},
-							ReplicationOffset: 47054,
+							replicationOffset: 47054,
 						},
-						Redis{
+						instance{
 							Address:           Address{"172.18.0.4", "6379"},
-							ReplicationOffset: 47040,
+							replicationOffset: 47040,
 						},
 					},
 				},
 			},
-			&Redis{
-				Role:              RoleMaster,
-				ReplicationOffset: 47054,
-				ConnectedReplicas: 2,
-				Replicas: Redises{
-					Redis{
+			&instance{
+				role:              RoleMaster,
+				replicationOffset: 47054,
+				connectedReplicas: 2,
+				replicas: instances{
+					instance{
 						Address:           Address{"172.18.0.5", "6379"},
-						ReplicationOffset: 47054,
+						replicationOffset: 47054,
 					},
-					Redis{
+					instance{
 						Address:           Address{"172.18.0.4", "6379"},
-						ReplicationOffset: 47040,
+						replicationOffset: 47040,
 					},
 				},
 			},
@@ -317,8 +317,8 @@ func TestRedises_SelectMaster(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.instances.SelectMaster(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Redises.SelectMaster()\nhave: %v\nwant: %v", got, tt.want)
+			if got := tt.instances.selectMaster(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("instances.selectMaster()\nhave: %v\nwant: %v", got, tt.want)
 			}
 		})
 	}
@@ -327,74 +327,74 @@ func TestRedises_SelectMaster(t *testing.T) {
 func TestRedises_Reconfigure(t *testing.T) {
 	tests := []struct {
 		name      string
-		instances Redises
+		instances instances
 		wantErr   bool
 	}{
-		{"empty", Redises{}, false},
+		{"empty", instances{}, false},
 		{
 			"normally working",
-			Redises{
-				Redis{
-					Role:              RoleMaster,
-					ReplicationOffset: 47054,
-					ConnectedReplicas: 2,
-					Replicas: Redises{
-						Redis{
+			instances{
+				instance{
+					role:              RoleMaster,
+					replicationOffset: 47054,
+					connectedReplicas: 2,
+					replicas: instances{
+						instance{
 							Address:           Address{"172.18.0.5", "6379"},
-							ReplicationOffset: 47054,
+							replicationOffset: 47054,
 						},
-						Redis{
+						instance{
 							Address:           Address{"172.18.0.4", "6379"},
-							ReplicationOffset: 47040,
+							replicationOffset: 47040,
 						},
 					},
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.5", "6379"},
-					ReplicationOffset: 47054,
+					replicationOffset: 47054,
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.4", "6379"},
-					ReplicationOffset: 47040,
+					replicationOffset: 47040,
 				},
 			},
 			false,
 		},
 		{
 			"new replica discovered",
-			Redises{
-				Redis{
-					Role:              RoleMaster,
-					ReplicationOffset: 47054,
-					ConnectedReplicas: 2,
-					Replicas: Redises{
-						Redis{
+			instances{
+				instance{
+					role:              RoleMaster,
+					replicationOffset: 47054,
+					connectedReplicas: 2,
+					replicas: instances{
+						instance{
 							Address:           Address{"172.18.0.5", "6379"},
-							ReplicationOffset: 47054,
+							replicationOffset: 47054,
 						},
-						Redis{
+						instance{
 							Address:           Address{"172.18.0.4", "6379"},
-							ReplicationOffset: 47040,
+							replicationOffset: 47040,
 						},
 					},
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.5", "6379"},
-					ReplicationOffset: 47054,
+					replicationOffset: 47054,
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.4", "6379"},
-					ReplicationOffset: 47040,
+					replicationOffset: 47040,
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.6", "6379"},
-					Role:              RoleReplica,
-					ReplicationOffset: 47054,
-					ReplicaPriority:   100,
-					MasterHost:        "172.18.0.2",
-					MasterPort:        "6379",
-					MasterLinkStatus:  "up",
-					conn: redis.NewClient(&redis.Options{
+					role:              RoleReplica,
+					replicationOffset: 47054,
+					replicaPriority:   100,
+					masterHost:        "172.18.0.2",
+					masterPort:        "6379",
+					masterLinkStatus:  "up",
+					client: redis.NewClient(&redis.Options{
 						Addr: "192.0.2.1:6379",
 					}),
 				},
@@ -403,28 +403,28 @@ func TestRedises_Reconfigure(t *testing.T) {
 		},
 		{
 			"all replicas - intended to fail",
-			Redises{
-				Redis{
+			instances{
+				instance{
 					Address:           Address{"172.18.0.5", "6379"},
-					Role:              RoleReplica,
-					ReplicationOffset: 47054,
-					ReplicaPriority:   100,
-					MasterHost:        "172.18.0.2",
-					MasterPort:        "6379",
-					MasterLinkStatus:  "up",
-					conn: redis.NewClient(&redis.Options{
+					role:              RoleReplica,
+					replicationOffset: 47054,
+					replicaPriority:   100,
+					masterHost:        "172.18.0.2",
+					masterPort:        "6379",
+					masterLinkStatus:  "up",
+					client: redis.NewClient(&redis.Options{
 						Addr: "192.0.2.1:6379",
 					}),
 				},
-				Redis{
+				instance{
 					Address:           Address{"172.18.0.4", "6379"},
-					Role:              RoleReplica,
-					ReplicationOffset: 47040,
-					ReplicaPriority:   100,
-					MasterHost:        "172.18.0.2",
-					MasterPort:        "6379",
-					MasterLinkStatus:  "up",
-					conn: redis.NewClient(&redis.Options{
+					role:              RoleReplica,
+					replicationOffset: 47040,
+					replicaPriority:   100,
+					masterHost:        "172.18.0.2",
+					masterPort:        "6379",
+					masterLinkStatus:  "up",
+					client: redis.NewClient(&redis.Options{
 						Addr: "192.0.2.1:6379",
 					}),
 				},
@@ -435,7 +435,7 @@ func TestRedises_Reconfigure(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.instances.Reconfigure(); (err != nil) != tt.wantErr {
-				t.Errorf("Redises.Reconfigure() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("instances.Reconfigure() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -444,19 +444,19 @@ func TestRedises_Reconfigure(t *testing.T) {
 func TestRedises_Disconnect(t *testing.T) {
 	tests := []struct {
 		name      string
-		instances Redises
+		instances instances
 	}{
-		{"empty", Redises{}},
+		{"empty", instances{}},
 		{
 			"some instances",
-			Redises{
-				Redis{
-					conn: redis.NewClient(&redis.Options{
+			instances{
+				instance{
+					client: redis.NewClient(&redis.Options{
 						Addr: "192.0.2.1:6379",
 					}),
 				},
-				Redis{
-					conn: redis.NewClient(&redis.Options{
+				instance{
+					client: redis.NewClient(&redis.Options{
 						Addr: "192.0.2.1:6378",
 					}),
 				},
