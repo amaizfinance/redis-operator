@@ -2,7 +2,9 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/amaizfinance/redis-operator)](https://goreportcard.com/report/github.com/amaizfinance/redis-operator)
 [![GolangCI](https://golangci.com/badges/github.com/amaizfinance/redis-operator.svg)](https://golangci.com/r/github.com/amaizfinance/redis-operator)
+[![LICENSE](https://img.shields.io/github/license/amaizfinance/redis-operator.svg)](https://github.com/amaizfinance/redis-operator/blob/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/amaizfinance/redis-operator?status.svg)](https://godoc.org/github.com/amaizfinance/redis-operator)
+[![Releases](https://img.shields.io/github/release/amaizfinance/redis-operator.svg)](https://github.com/amaizfinance/redis-operator/releases)
 
 ## Project status: alpha
 
