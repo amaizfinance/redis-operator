@@ -173,8 +173,22 @@ func (in *RedisSpec) DeepCopyInto(out *RedisSpec) {
 		copy(*out, *in)
 	}
 	in.DataVolumeClaimTemplate.DeepCopyInto(&out.DataVolumeClaimTemplate)
+	if in.Volumes != nil {
+		in, out := &in.Volumes, &out.Volumes
+		*out = make([]v1.Volume, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
+	}
 	in.Redis.DeepCopyInto(&out.Redis)
 	in.Exporter.DeepCopyInto(&out.Exporter)
+	if in.Inits != nil {
+		in, out := &in.Inits, &out.Inits
+		*out = make([]v1.Container, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
+	}
 	return
 }
 

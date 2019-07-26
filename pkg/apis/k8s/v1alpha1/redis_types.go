@@ -69,12 +69,17 @@ type RedisSpec struct {
 	PriorityClassName string `json:"priorityClassName,omitempty"`
 	// DataVolumeClaimTemplate for StatefulSet
 	DataVolumeClaimTemplate corev1.PersistentVolumeClaim `json:"dataVolumeClaimTemplate,omitempty"`
+	// Volumes for StatefulSet
+	Volumes []corev1.Volume `json:"volumes,omitempty"`
 
 	// Redis container specification
 	Redis ContainerSpec `json:"redis"`
 
 	// Exporter container specification
 	Exporter ContainerSpec `json:"exporter,omitempty"`
+
+	// Pod initContainers
+	Inits []corev1.Container `json:"inits,omitempty"`
 }
 
 // Password allows to refer to a Secret containing password for Redis
@@ -104,6 +109,10 @@ type ContainerSpec struct {
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 	// SecurityContext holds security configuration that will be applied to a container
 	SecurityContext *corev1.SecurityContext `json:"securityContext,omitempty"`
+	// Number of seconds after the container has started before liveness probes are initiated.
+	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	// +optional
+	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
 }
 
 // RedisStatus contains the observed state of Redis

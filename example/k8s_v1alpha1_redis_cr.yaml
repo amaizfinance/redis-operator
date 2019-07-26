@@ -61,11 +61,6 @@ spec:
   annotations:
     cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     seccomp.security.alpha.kubernetes.io/pod: runtime/default
-  securityContext:
-    runAsUser: 7777777
-    runAsGroup: 7777777
-    fsGroup: 7777777
-    runAsNonRoot: true
 
   # dataVolumeClaimTemplate allows to define a persistent volume template for Redis. (optional)
   # If omitted, emptyDir will be used.
@@ -86,6 +81,7 @@ spec:
   # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#container-v1-core
   redis:
     image: redis:5-alpine
+    initialDelaySeconds: 10
     resources:
       limits:
         cpu: 100m
@@ -96,6 +92,10 @@ spec:
         drop:
         - all
       readOnlyRootFilesystem: true
+      runAsUser: 7777777
+      runAsGroup: 7777777
+      fsGroup: 7777777
+      runAsNonRoot: true
 
   # Redis exporter container definition (optional)
   exporter:
@@ -110,3 +110,29 @@ spec:
         drop:
         - all
       readOnlyRootFilesystem: true
+      runAsUser: 7777777
+      runAsGroup: 7777777
+      fsGroup: 7777777
+      runAsNonRoot: true
+
+  # To disable THP
+  volumes:
+  - name: sys
+    hostPath:
+      path: /sys
+  inits:
+  - name: disable-thp
+    image: busybox
+    command: ["sh", "-c"]
+    args:
+    - |-
+      set -e
+      set -o pipefail
+
+      echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
+
+      grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
+    volumeMounts:
+    - name: sys
+      mountPath: /rootfs/sys
+      type: Directory

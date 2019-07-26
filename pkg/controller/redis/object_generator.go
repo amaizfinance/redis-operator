@@ -263,6 +263,11 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 		},
 	}}
 
+	// append external volumes
+	if r.Spec.Volumes != nil {
+		volumes = append(volumes, r.Spec.Volumes...)
+	}
+
 	// redis container goes first
 	containers := []corev1.Container{{
 		Name:       redisName,
@@ -276,8 +281,14 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 			MountPath: configMapMountPath,
 			SubPath:   configFileName,
 		}},
-		LivenessProbe:   &corev1.Probe{Handler: corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}}},
-		ReadinessProbe:  &corev1.Probe{Handler: corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}}},
+		LivenessProbe: &corev1.Probe{
+			Handler:             corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
+			InitialDelaySeconds: r.Spec.Redis.InitialDelaySeconds,
+		},
+		ReadinessProbe: &corev1.Probe{
+			Handler:             corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
+			InitialDelaySeconds: r.Spec.Redis.InitialDelaySeconds,
+		},
 		ImagePullPolicy: corev1.PullAlways,
 		SecurityContext: r.Spec.Redis.SecurityContext,
 	}}
@@ -382,6 +393,7 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 				Spec: corev1.PodSpec{
 					Volumes:            volumes,
 					Containers:         containers,
+					InitContainers:     r.Spec.Inits,
 					ServiceAccountName: r.Spec.ServiceAccountName,
 					SecurityContext:    r.Spec.SecurityContext,
 					ImagePullSecrets:   r.Spec.ImagePullSecrets,
