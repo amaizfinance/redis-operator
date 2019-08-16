@@ -1,6 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-
-package(default_visibility = ["//visibility:public"])
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -10,12 +8,7 @@ go_library(
         "readerfactory.go",
         "trie.go",
     ],
+    importmap = "github.com/amaizfinance/redis-operator/vendor/github.com/grpc-ecosystem/grpc-gateway/utilities",
     importpath = "github.com/grpc-ecosystem/grpc-gateway/utilities",
-)
-
-go_test(
-    name = "go_default_test",
-    size = "small",
-    srcs = ["trie_test.go"],
-    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
 )

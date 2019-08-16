@@ -1,0 +1,37 @@
+---
+kind: pipeline
+name: secreter
+steps:
+
+- name: test
+  image: l.gcr.io/google/bazel:0.28.1
+  commands:
+  - ./hack/build/test.sh
+  volumes:
+  - name: cache
+    path: /root/.cache
+
+- name: build and push docker image
+  image: l.gcr.io/google/bazel:0.28.1
+  environment:
+    DOCKER_AUTH:
+      from_secret: docker-config-json
+  commands:
+  - ./hack/build/push-image.sh
+  volumes:
+  - name: cache
+    path: /root/.cache
+  when:
+    ref:
+    - refs/heads/master
+    - refs/tags/v*
+
+volumes:
+- name: cache
+  temp: {}
+
+---
+kind: signature
+hmac: 370bc5033b992f2d40a4a2da77d5cf7e867b0110a40104c1c2fd92efe76a2da8
+
+...

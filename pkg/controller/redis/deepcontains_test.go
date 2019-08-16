@@ -23,11 +23,11 @@ import (
 func Test_deepContains(t *testing.T) {
 	// test types
 	type basicStruct struct {
-		Tstring  string
 		Tbool    bool
+		Tfloat32 float32
 		Tint     int
 		Tuint    uint
-		Tfloat32 float32
+		Tstring  string
 
 		unexported int
 	}

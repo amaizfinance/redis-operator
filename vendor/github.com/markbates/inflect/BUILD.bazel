@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "helpers.go",
+        "inflect.go",
+        "name.go",
+        "version.go",
+    ],
+    importmap = "github.com/amaizfinance/redis-operator/vendor/github.com/markbates/inflect",
+    importpath = "github.com/markbates/inflect",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/github.com/gobuffalo/envy:go_default_library"],
+)

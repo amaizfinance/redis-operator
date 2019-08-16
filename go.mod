@@ -5,8 +5,8 @@ go 1.12
 require (
 	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible
-	github.com/go-redis/redis v6.15.2+incompatible
-	github.com/operator-framework/operator-sdk v0.9.1-0.20190712203509-e1d904fa80a4
+	github.com/go-redis/redis v0.0.0-20190813142431-c5c4ad6a4cae
+	github.com/operator-framework/operator-sdk v0.10.0
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/pflag v1.0.3
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
@@ -32,5 +32,3 @@ replace (
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.1.12
 	sigs.k8s.io/controller-tools => sigs.k8s.io/controller-tools v0.1.11-0.20190411181648-9d55346c2bde
 )
-
-replace github.com/operator-framework/operator-sdk => github.com/operator-framework/operator-sdk v0.9.0
