@@ -9,7 +9,4 @@ set -o pipefail
 
 cat <<EOF
 ImageTag ${DRONE_TAG:-latest}
-Version ${DRONE_TAG:-latest}
-GitCommit ${DRONE_COMMIT_SHA:-$(git rev-parse HEAD)}
-BuildDate $(date -u +'%Y-%m-%dT%H:%M:%SZ')
 EOF

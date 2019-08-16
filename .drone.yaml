@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: secreter
+name: redis-operator
 steps:
 
 - name: test
@@ -32,6 +32,6 @@ volumes:
 
 ---
 kind: signature
-hmac: 370bc5033b992f2d40a4a2da77d5cf7e867b0110a40104c1c2fd92efe76a2da8
+hmac: a187e70cb43642463df713cfaae94b11d080d65721d4c1a19768dacc8d8c900f
 
 ...
