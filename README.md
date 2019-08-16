@@ -1,5 +1,6 @@
 # Redis Operator
 
+[![Build Status](https://cloud.drone.io/api/badges/amaizfinance/redis-operator/status.svg)](https://cloud.drone.io/amaizfinance/redis-operator)
 [![Go Report Card](https://goreportcard.com/badge/github.com/amaizfinance/redis-operator)](https://goreportcard.com/report/github.com/amaizfinance/redis-operator)
 [![GolangCI](https://golangci.com/badges/github.com/amaizfinance/redis-operator.svg)](https://golangci.com/r/github.com/amaizfinance/redis-operator)
 [![LICENSE](https://img.shields.io/github/license/amaizfinance/redis-operator.svg)](https://github.com/amaizfinance/redis-operator/blob/master/LICENSE)
@@ -12,7 +13,7 @@ The basic features have been completed, and while no breaking API changes are cu
 
 ## Overview
 
-Redis Operator can be considered a Kubernetes-native replacement for [Redis Sentinel][sentinel]. It creates the [Redis][Redis] instances and maintains high availability and automatic failover.
+Redis Operator can be considered a Kubernetes-native replacement for [Redis Sentinel][sentinel]. It creates the [Redis] instances and maintains high availability and automatic failover.
 
 Fundamental things to know about Redis Operator:
 
