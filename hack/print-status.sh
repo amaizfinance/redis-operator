@@ -8,5 +8,6 @@ set -o nounset
 set -o pipefail
 
 cat <<EOF
+Version ${DRONE_TAG:-latest}
 ImageTag ${DRONE_TAG:-latest}
 EOF

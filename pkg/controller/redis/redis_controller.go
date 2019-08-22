@@ -119,9 +119,12 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 	loggerDebug := logger.V(1).Info
 	loggerDebug("Reconciling Redis")
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Fetch the Redis instance
 	fetchedRedis := new(k8sv1alpha1.Redis)
-	if err := reconciler.client.Get(context.TODO(), request.NamespacedName, fetchedRedis); err != nil {
+	if err := reconciler.client.Get(ctx, request.NamespacedName, fetchedRedis); err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
@@ -140,16 +143,15 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 	if redisObject.Labels == nil {
 		redisObject.Labels = make(map[string]string)
 	}
-	redisObject.Labels[redisName] = redisObject.Name
+	redisObject.Labels[redisName] = redisObject.GetName()
 
 	// read password from Secret
 	if redisObject.Spec.Password.SecretKeyRef != nil {
 		passwordSecret := new(corev1.Secret)
-		if err := reconciler.client.Get(
-			context.TODO(),
-			types.NamespacedName{Namespace: request.Namespace, Name: redisObject.Spec.Password.SecretKeyRef.Name},
-			passwordSecret,
-		); err != nil {
+		if err := reconciler.client.Get(ctx, types.NamespacedName{
+			Namespace: request.Namespace,
+			Name:      redisObject.Spec.Password.SecretKeyRef.Name,
+		}, passwordSecret); err != nil {
 			return reconcile.Result{}, fmt.Errorf("failed to fetch password: %s", err)
 		}
 
@@ -186,10 +188,10 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 			continue
 		}
 
-		if result, err := reconciler.createOrUpdate(object, redisObject, options); err != nil {
+		if result, err := reconciler.createOrUpdate(ctx, object, redisObject, options); err != nil {
 			return reconcile.Result{}, err
 		} else if result.Requeue {
-			logger.Info(fmt.Sprintf("Applied %T", object))
+			logger.Info(fmt.Sprintf("Applied %#v", object))
 			return result, nil
 		}
 	}
@@ -197,15 +199,14 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 	// all the kubernetes resources are OK.
 	// Redis failover state should be checked and reconfigured if needed.
 	podList := new(corev1.PodList)
-	if err := reconciler.client.List(
-		context.TODO(),
-		&client.ListOptions{Namespace: request.Namespace, LabelSelector: labels.SelectorFromSet(redisObject.Labels)},
-		podList,
-	); err != nil {
+	if err := reconciler.client.List(ctx, &client.ListOptions{
+		LabelSelector: labels.SelectorFromSet(redisObject.Labels),
+		Namespace:     request.Namespace,
+	}, podList); err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list Pods: %s", err)
 	}
 
-	var addrs []redis.Address
+	var addresses []redis.Address
 
 podIter:
 	// filter out pods without assigned IP addresses and not having all containers ready
@@ -213,16 +214,18 @@ podIter:
 		if podList.Items[i].Status.Phase != corev1.PodRunning || podList.Items[i].Status.PodIP == "" {
 			continue
 		}
+
 		for _, status := range podList.Items[i].Status.ContainerStatuses {
 			if !status.Ready {
 				continue podIter
 			}
 		}
-		addrs = append(addrs, redis.Address{Host: podList.Items[i].Status.PodIP, Port: strconv.Itoa(redis.Port)})
+
+		addresses = append(addresses, redis.Address{Host: podList.Items[i].Status.PodIP, Port: strconv.Itoa(redis.Port)})
 	}
 
 	// Run Redis Replication Reconfiguration
-	replication, err := redis.New(options.password, addrs...)
+	replication, err := redis.New(options.password, addresses...)
 	if err != nil {
 		// This is considered part of normal operation - return and requeue
 		logger.Info("Error creating Redis replication, requeue", "error", err)
@@ -281,7 +284,7 @@ podIter:
 				}
 				pod.Labels[roleLabelKey] = replicaLabel
 			}
-			if err := reconciler.client.Update(context.TODO(), &pod); err != nil {
+			if err := reconciler.client.Update(ctx, &pod); err != nil {
 				errChan <- err
 			}
 		}(podList.Items[i], master.Host, &wg)
@@ -306,7 +309,7 @@ podIter:
 
 	// update configmap with the current master's IP address
 	options.master = master
-	if result, err := reconciler.createOrUpdate(new(corev1.ConfigMap), redisObject, options); err != nil {
+	if result, err := reconciler.createOrUpdate(ctx, new(corev1.ConfigMap), redisObject, options); err != nil {
 		return result, err
 	} else if result.Requeue {
 		logger.Info("Updated ConfigMap")
@@ -321,7 +324,7 @@ podIter:
 
 	fetchedRedis.Status.Replicas = replication.Size()
 	fetchedRedis.Status.Master = masterPodName
-	if err := reconciler.client.Status().Update(context.TODO(), fetchedRedis); err != nil {
+	if err := reconciler.client.Status().Update(ctx, fetchedRedis); err != nil {
 		if errors.IsConflict(err) {
 			loggerDebug("Conflict updating Redis status, requeue")
 			return reconcile.Result{Requeue: true}, nil
@@ -336,17 +339,25 @@ podIter:
 // passing an empty instance implementing runtime.Object will generate the appropriate ``expected'' object,
 // create an object if it does not exist, compare the existing object with the generated one and update if needed.
 // the Result.Requeue will be true if the object was successfully created or updated or in case there was a conflict updating the object.
-func (reconciler *ReconcileRedis) createOrUpdate(object runtime.Object, redis *k8sv1alpha1.Redis, options objectGeneratorOptions) (result reconcile.Result, err error) {
+func (reconciler *ReconcileRedis) createOrUpdate(
+	ctx context.Context,
+	object runtime.Object,
+	redis *k8sv1alpha1.Redis,
+	options objectGeneratorOptions,
+) (result reconcile.Result, err error) {
 	generatedObject := generateObject(redis, object, options)
 	objectMeta := generatedObject.(metav1.Object)
 
-	if err = reconciler.client.Get(context.TODO(), types.NamespacedName{Name: objectMeta.GetName(), Namespace: redis.Namespace}, object); err != nil {
+	if err = reconciler.client.Get(ctx, types.NamespacedName{
+		Namespace: redis.GetNamespace(),
+		Name:      objectMeta.GetName(),
+	}, object); err != nil {
 		if errors.IsNotFound(err) {
 			// Set Redis instance as the owner and controller
 			if err = controllerutil.SetControllerReference(redis, objectMeta, reconciler.scheme); err != nil {
 				return reconcile.Result{}, fmt.Errorf("failed to set owner for Object: %s", err)
 			}
-			if err = reconciler.client.Create(context.TODO(), generatedObject); err != nil && !errors.IsAlreadyExists(err) {
+			if err = reconciler.client.Create(ctx, generatedObject); err != nil && !errors.IsAlreadyExists(err) {
 				return reconcile.Result{}, fmt.Errorf("failed to create Object: %s", err)
 			}
 			return reconcile.Result{Requeue: true}, nil
@@ -358,7 +369,7 @@ func (reconciler *ReconcileRedis) createOrUpdate(object runtime.Object, redis *k
 		return
 	}
 
-	if err = reconciler.client.Update(context.TODO(), object); err != nil {
+	if err = reconciler.client.Update(ctx, object); err != nil {
 		if errors.IsConflict(err) {
 			// conflicts can be common, consider it part of normal operation
 			return reconcile.Result{Requeue: true}, nil

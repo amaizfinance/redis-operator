@@ -143,9 +143,7 @@ func (a Address) String() string {
 
 // strict implementation check
 var (
-	_ rediser        = (*instance)(nil)
-	_ Replication    = (*instances)(nil)
-	_ sort.Interface = (*instances)(nil)
+	_ rediser = (*instance)(nil)
 )
 
 // instance struct includes a subset of fields returned by INFO
@@ -463,12 +461,12 @@ func (ins instances) reconfigureAsReplicasOf(master Address) error {
 // New creates a new redis replication.
 // Instances are added on the best effort basis. It means that out of N addresses passed
 // if at least 2 instances are healthy the replication will be created. Otherwise New will return an error.
-func New(password string, addrs ...Address) (Replication, error) {
-	instances := make(instances, 0, len(addrs))
-	for _, addr := range addrs {
+func New(password string, addresses ...Address) (Replication, error) {
+	instances := make(instances, 0, len(addresses))
+	for _, address := range addresses {
 		r := instance{
-			Address: addr,
-			client:  redis.NewClient(&redis.Options{Addr: addr.String(), Password: password}),
+			Address: address,
+			client:  redis.NewClient(&redis.Options{Addr: address.String(), Password: password}),
 		}
 
 		// check connection and add the instance if Ping succeeds

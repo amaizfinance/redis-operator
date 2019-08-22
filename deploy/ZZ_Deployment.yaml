@@ -21,8 +21,10 @@ spec:
       serviceAccountName: redis-operator
       containers:
       - name: redis-operator
-        image: amaiz/redis-operator:0.1.0
-        imagePullPolicy: Always
+        image: amaiz/redis-operator:v0.1.0
+        args:
+        - --zap-time-encoding
+        - iso8601
         env:
         - name: WATCH_NAMESPACE # left empty to watch all namespaces
         - name: OPERATOR_NAME

@@ -14,7 +14,7 @@
 
 package version
 
-const (
+var (
 	// Version of the redis-operator
 	Version = "0.0.1"
 )

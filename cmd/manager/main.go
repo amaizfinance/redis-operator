@@ -41,6 +41,7 @@ import (
 
 	"github.com/amaizfinance/redis-operator/pkg/apis"
 	"github.com/amaizfinance/redis-operator/pkg/controller"
+	"github.com/amaizfinance/redis-operator/version"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -52,6 +53,7 @@ var (
 var log = logf.Log.WithName("cmd")
 
 func printVersion() {
+	log.Info(fmt.Sprintf("Redis-Operator Version: %s", version.Version))
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
