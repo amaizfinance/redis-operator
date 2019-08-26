@@ -458,7 +458,10 @@ func statefulSetUpdateNeeded(got, want *appsv1.StatefulSet) (needed bool) {
 		needed = true
 	}
 
-	if !deepContains(got.Spec.Template, want.Spec.Template) || (got.Annotations[hashAnnotationKey] != want.Annotations[hashAnnotationKey]) {
+	// compare container resources explicitly. They escape the deepContains comparison because of private fields.
+	if !deepContains(got.Spec.Template, want.Spec.Template) ||
+		got.Annotations[hashAnnotationKey] != want.Annotations[hashAnnotationKey] ||
+		!resourceRequirementsEqual(got.Spec.Template.Spec.Containers, want.Spec.Template.Spec.Containers) {
 		got.Spec.Template = want.Spec.Template
 		needed = true
 	}
@@ -508,4 +511,18 @@ func hashObject(object k8sruntime.Object) (string, error) {
 	}
 
 	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+
+func resourceRequirementsEqual(got, want []corev1.Container) bool {
+	if len(got) < len(want) {
+		return false
+	}
+
+	for i := range want {
+		if !reflect.DeepEqual(got[i].Resources, want[i].Resources) {
+			return false
+		}
+	}
+
+	return true
 }

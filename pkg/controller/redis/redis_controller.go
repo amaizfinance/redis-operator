@@ -191,7 +191,7 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 		if result, err := reconciler.createOrUpdate(ctx, object, redisObject, options); err != nil {
 			return reconcile.Result{}, err
 		} else if result.Requeue {
-			logger.Info(fmt.Sprintf("Applied %#v", object))
+			logger.Info(fmt.Sprintf("Applied %T", object))
 			return result, nil
 		}
 	}
