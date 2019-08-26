@@ -21,7 +21,7 @@ spec:
       serviceAccountName: redis-operator
       containers:
       - name: redis-operator
-        image: amaiz/redis-operator:v0.1.1
+        image: amaiz/redis-operator:v0.1.2
         args:
         - --zap-time-encoding
         - iso8601
