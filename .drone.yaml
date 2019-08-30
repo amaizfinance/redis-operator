@@ -4,7 +4,7 @@ name: redis-operator
 steps:
 
 - name: test
-  image: l.gcr.io/google/bazel:0.28.1
+  image: l.gcr.io/google/bazel:0.29.0
   commands:
   - ./hack/build/test.sh
   volumes:
@@ -12,7 +12,7 @@ steps:
     path: /root/.cache
 
 - name: build and push docker image
-  image: l.gcr.io/google/bazel:0.28.1
+  image: l.gcr.io/google/bazel:0.29.0
   environment:
     DOCKER_AUTH:
       from_secret: docker-config-json
@@ -32,6 +32,6 @@ volumes:
 
 ---
 kind: signature
-hmac: a187e70cb43642463df713cfaae94b11d080d65721d4c1a19768dacc8d8c900f
+hmac: 5185b235f68240a5ba70c95fea94c3d76fc07d7ce0ed95bed1ccd01e954c42fd
 
 ...

@@ -81,6 +81,11 @@ spec:
               required:
               - image
               type: object
+            imagePullSecrets:
+              description: 'Pod ImagePullSecrets More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod'
+              items:
+                type: object
+              type: array
             password:
               properties:
                 secretKeyRef:
@@ -117,6 +122,10 @@ spec:
             securityContext:
               description: Pod securityContext
               type: object
+            serviceAccountName:
+              description: 'Pod ServiceAccountName is the name of the ServiceAccount
+                to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/'
+              type: string
             tolerations:
               description: Pod tolerations
               items:

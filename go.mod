@@ -5,7 +5,8 @@ go 1.12
 require (
 	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible
-	github.com/go-redis/redis v0.0.0-20190813142431-c5c4ad6a4cae
+	github.com/go-openapi/spec v0.19.0
+	github.com/go-redis/redis v0.0.0-20190813142431-c5c4ad6a4cae // v6.15.4
 	github.com/operator-framework/operator-sdk v0.10.0
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/pflag v1.0.3
@@ -13,7 +14,7 @@ require (
 	k8s.io/api v0.0.0-20190612125737-db0771252981
 	k8s.io/apimachinery v0.0.0-20190612125636-6a5db36e93ad
 	k8s.io/client-go v11.0.0+incompatible
-	k8s.io/kube-openapi v0.0.0-20190603182131-db7b694dc208 // indirect
+	k8s.io/kube-openapi v0.0.0-20190603182131-db7b694dc208
 	sigs.k8s.io/controller-runtime v0.1.12
 	sigs.k8s.io/controller-tools v0.1.10
 )

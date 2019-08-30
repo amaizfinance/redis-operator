@@ -365,7 +365,12 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 	}
 
 	s := &appsv1.StatefulSet{
-		ObjectMeta: metav1.ObjectMeta{Name: generateName(r), Namespace: r.GetNamespace(), Labels: r.GetLabels(), Annotations: make(map[string]string)},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        generateName(r),
+			Namespace:   r.GetNamespace(),
+			Labels:      r.GetLabels(),
+			Annotations: make(map[string]string),
+		},
 		Spec: appsv1.StatefulSetSpec{
 			Replicas: r.Spec.Replicas,
 			Selector: &metav1.LabelSelector{MatchLabels: r.GetLabels()},
@@ -375,12 +380,14 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 					Annotations: r.Spec.Annotations,
 				},
 				Spec: corev1.PodSpec{
-					Volumes:           volumes,
-					Containers:        containers,
-					SecurityContext:   r.Spec.SecurityContext,
-					Affinity:          r.Spec.Affinity,
-					Tolerations:       r.Spec.Tolerations,
-					PriorityClassName: r.Spec.PriorityClassName,
+					Volumes:            volumes,
+					Containers:         containers,
+					ServiceAccountName: r.Spec.ServiceAccountName,
+					SecurityContext:    r.Spec.SecurityContext,
+					ImagePullSecrets:   r.Spec.ImagePullSecrets,
+					Affinity:           r.Spec.Affinity,
+					Tolerations:        r.Spec.Tolerations,
+					PriorityClassName:  r.Spec.PriorityClassName,
 				},
 			},
 			VolumeClaimTemplates: volumeClaimTemplates,

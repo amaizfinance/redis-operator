@@ -59,6 +59,12 @@ type RedisSpec struct {
 	Affinity *corev1.Affinity `json:"affinity,omitempty"`
 	// Pod tolerations
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
+	// Pod ServiceAccountName is the name of the ServiceAccount to use to run this pod.
+	// More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+	// Pod ImagePullSecrets
+	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// Pod priorityClassName
 	PriorityClassName string `json:"priorityClassName,omitempty"`
 	// DataVolumeClaimTemplate for StatefulSet
