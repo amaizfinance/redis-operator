@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/amaizfinance/redis-operator/pkg/redis",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/cenkalti/backoff:go_default_library",
+        "//vendor/github.com/cenkalti/backoff/v3:go_default_library",
         "//vendor/github.com/go-redis/redis:go_default_library",
         "//vendor/github.com/spf13/cast:go_default_library",
     ],

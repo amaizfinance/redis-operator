@@ -12,7 +12,7 @@ go_library(
     deps = [
         "//pkg/apis/k8s/v1alpha1:go_default_library",
         "//pkg/redis:go_default_library",
-        "//vendor/github.com/cenkalti/backoff:go_default_library",
+        "//vendor/github.com/cenkalti/backoff/v3:go_default_library",
         "//vendor/golang.org/x/crypto/argon2:go_default_library",
         "//vendor/k8s.io/api/apps/v1:go_default_library",
         "//vendor/k8s.io/api/core/v1:go_default_library",

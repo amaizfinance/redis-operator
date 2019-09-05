@@ -1,12 +1,11 @@
 module github.com/amaizfinance/redis-operator
 
-go 1.12
+go 1.13
 
 require (
-	github.com/NYTimes/gziphandler v1.0.1 // indirect
-	github.com/cenkalti/backoff v2.1.1+incompatible
+	github.com/cenkalti/backoff/v3 v3.0.0
 	github.com/go-openapi/spec v0.19.0
-	github.com/go-redis/redis v0.0.0-20190813142431-c5c4ad6a4cae // v6.15.4
+	github.com/go-redis/redis v6.15.5+incompatible
 	github.com/operator-framework/operator-sdk v0.10.0
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/pflag v1.0.3

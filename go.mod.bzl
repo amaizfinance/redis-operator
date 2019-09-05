@@ -68,6 +68,12 @@ def go_repositories():
         version = "v0.0.0-20180321164747-3a771d992973",
     )
     go_repository(
+        name = "com_github_boltdb_bolt",
+        importpath = "github.com/boltdb/bolt",
+        sum = "h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=",
+        version = "v1.3.1",
+    )
+    go_repository(
         name = "com_github_bradfitz_go_smtpd",
         importpath = "github.com/bradfitz/go-smtpd",
         sum = "h1:ckJgFhFWywOx+YLEMIJsTb+NV6NexWICk5+AMSuz3ss=",
@@ -80,10 +86,10 @@ def go_repositories():
         version = "v0.3.1",
     )
     go_repository(
-        name = "com_github_cenkalti_backoff",
-        importpath = "github.com/cenkalti/backoff",
-        sum = "h1:tKJnvO2kl0zmb/jA5UKAt4VoEVw1qxKWjE/Bpp46npY=",
-        version = "v2.1.1+incompatible",
+        name = "com_github_cenkalti_backoff_v3",
+        importpath = "github.com/cenkalti/backoff/v3",
+        sum = "h1:ske+9nBpD9qZsTBoF41nW5L+AIuFBKMeze18XQ3eG1c=",
+        version = "v3.0.0",
     )
     go_repository(
         name = "com_github_census_instrumentation_opencensus_proto",
@@ -201,6 +207,12 @@ def go_repositories():
         version = "v1.1.0",
     )
     go_repository(
+        name = "com_github_elazarl_go_bindata_assetfs",
+        importpath = "github.com/elazarl/go-bindata-assetfs",
+        sum = "h1:G/bYguwHIzWq9ZoyUQqrjTmJbbYn3j3CKKpKinvZLFk=",
+        version = "v1.0.0",
+    )
+    go_repository(
         name = "com_github_elazarl_goproxy",
         importpath = "github.com/elazarl/goproxy",
         sum = "h1:8GDPb0tCY8LQ+OJ3dbHb5sA6YZWXFORQYZx5sdsTlMs=",
@@ -217,6 +229,12 @@ def go_repositories():
         importpath = "github.com/emicklei/go-restful",
         sum = "h1:2OwhVdhtzYUp5P5wuGsVDPagKSRd9JK72sJCHVCXh5g=",
         version = "v2.9.3+incompatible",
+    )
+    go_repository(
+        name = "com_github_emicklei_go_restful_swagger12",
+        importpath = "github.com/emicklei/go-restful-swagger12",
+        sum = "h1:V94anc0ZG3Pa/cAMwP2m1aQW3+/FF8Qmw/GsFyTJAp4=",
+        version = "v0.0.0-20170926063155-7524189396c6",
     )
     go_repository(
         name = "com_github_evanphx_json_patch",
@@ -353,8 +371,8 @@ def go_repositories():
     go_repository(
         name = "com_github_go_redis_redis",
         importpath = "github.com/go-redis/redis",
-        sum = "h1:EUmwouP8B6dt84Hcd6hmi9/pJmAYA0Ju5nKvldfJLxI=",
-        version = "v0.0.0-20190813142431-c5c4ad6a4cae",
+        sum = "h1:pLky8I0rgiblWfa8C1EV7fPEUv0aH6vKRaYHc/YRHVk=",
+        version = "v6.15.5+incompatible",
     )
     go_repository(
         name = "com_github_go_stack_stack",
@@ -391,6 +409,12 @@ def go_repositories():
         importpath = "github.com/golang/groupcache",
         sum = "h1:veQD95Isof8w9/WXiA+pa3tz3fJXkt5B7QaRBrM62gk=",
         version = "v0.0.0-20190129154638-5b532d6fd5ef",
+    )
+    go_repository(
+        name = "com_github_golang_lint",
+        importpath = "github.com/golang/lint",
+        sum = "h1:2hRPrmiwPrp3fQX967rNJIhQPtiGXdlQWAxKbKw3VHA=",
+        version = "v0.0.0-20180702182130-06c8688daad7",
     )
     go_repository(
         name = "com_github_golang_mock",
@@ -785,14 +809,14 @@ def go_repositories():
     go_repository(
         name = "com_github_onsi_ginkgo",
         importpath = "github.com/onsi/ginkgo",
-        sum = "h1:VkHVNpR4iVnU8XQR6DBm8BqYjN7CRzw+xKUbVVbbW9w=",
-        version = "v1.8.0",
+        sum = "h1:WSHQ+IS43OoUrWtD1/bbclrwK8TTH5hzp+umCiuxHgs=",
+        version = "v1.7.0",
     )
     go_repository(
         name = "com_github_onsi_gomega",
         importpath = "github.com/onsi/gomega",
-        sum = "h1:izbySO9zDPmjJ8rDjLvkA2zJHIo+HkYXHnf7eN7SSyo=",
-        version = "v1.5.0",
+        sum = "h1:RE1xgDvH7imwFD45h+u2SgIfERHlS2yNG4DObb5BSKU=",
+        version = "v1.4.3",
     )
     go_repository(
         name = "com_github_opencontainers_go_digest",
@@ -841,6 +865,12 @@ def go_repositories():
         importpath = "github.com/pelletier/go-toml",
         sum = "h1:e5+lF2E4Y2WCIxBefVowBuB0iHrUH4HZ8q+6mGF7fJc=",
         version = "v1.3.0",
+    )
+    go_repository(
+        name = "com_github_petar_gollrb",
+        importpath = "github.com/petar/GoLLRB",
+        sum = "h1:AwcgVYzW1T+QuJ2fc55ceOSCiVaOpdYUNpFj9t7+n9U=",
+        version = "v0.0.0-20130427215148-53be0d36a84c",
     )
     go_repository(
         name = "com_github_peterbourgon_diskv",
@@ -1017,6 +1047,12 @@ def go_repositories():
         version = "v1.3.2",
     )
     go_repository(
+        name = "com_github_stevvooe_resumable",
+        importpath = "github.com/stevvooe/resumable",
+        sum = "h1:4bT0pPowCpQImewr+BjzfUKcuFW+KVyB8d1OF3b6oTI=",
+        version = "v0.0.0-20180830230917-22b14a53ba50",
+    )
+    go_repository(
         name = "com_github_stretchr_objx",
         importpath = "github.com/stretchr/objx",
         sum = "h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=",
@@ -1045,6 +1081,12 @@ def go_repositories():
         importpath = "github.com/tmc/grpc-websocket-proxy",
         sum = "h1:LnC5Kc/wtumK+WB441p7ynQJzVuNRJiqddSIE3IlSEQ=",
         version = "v0.0.0-20190109142713-0ad062ec5ee5",
+    )
+    go_repository(
+        name = "com_github_ugorji_go",
+        importpath = "github.com/ugorji/go",
+        sum = "h1:gmervu+jDMvXTbcHQ0pd2wee85nEoE0BsVyEuzkfK8w=",
+        version = "v1.1.1",
     )
     go_repository(
         name = "com_github_ugorji_go_codec",
@@ -1286,6 +1328,18 @@ def go_repositories():
         importpath = "vbom.ml/util",
         sum = "h1:O69FD9pJA4WUZlEwYatBEEkRWKQ5cKodWpdKTrCS/iQ=",
         version = "v0.0.0-20180919145318-efcd4e0f9787",
+    )
+    go_repository(
+        name = "org_apache_git_thrift_git",
+        importpath = "git.apache.org/thrift.git",
+        sum = "h1:CMxsZlAmxKs+VAZMlDDL0wXciMblJcutQbEe3A9CYUM=",
+        version = "v0.12.0",
+    )
+    go_repository(
+        name = "org_bitbucket_ww_goautoneg",
+        importpath = "bitbucket.org/ww/goautoneg",
+        sum = "h1:t+Ra932MCC0eeyD/vigXqMbZTzgZjd4JOfBJWC6VSMI=",
+        version = "v0.0.0-20120707110453-75cd24fc2f2c",
     )
     go_repository(
         name = "org_go4",

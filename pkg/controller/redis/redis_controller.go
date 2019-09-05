@@ -25,7 +25,7 @@ import (
 	k8sv1alpha1 "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1"
 	"github.com/amaizfinance/redis-operator/pkg/redis"
 
-	"github.com/cenkalti/backoff"
+	"github.com/cenkalti/backoff/v3"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"

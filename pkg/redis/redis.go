@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cenkalti/backoff"
+	"github.com/cenkalti/backoff/v3"
 	"github.com/go-redis/redis"
 	"github.com/spf13/cast"
 )
