@@ -393,7 +393,7 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 				Spec: corev1.PodSpec{
 					Volumes:            volumes,
 					Containers:         containers,
-					InitContainers:     r.Spec.Inits,
+					InitContainers:     r.Spec.InitContainers,
 					ServiceAccountName: r.Spec.ServiceAccountName,
 					SecurityContext:    r.Spec.SecurityContext,
 					ImagePullSecrets:   r.Spec.ImagePullSecrets,

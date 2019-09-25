@@ -79,7 +79,7 @@ type RedisSpec struct {
 	Exporter ContainerSpec `json:"exporter,omitempty"`
 
 	// Pod initContainers
-	Inits []corev1.Container `json:"inits,omitempty"`
+	InitContainers []corev1.Container `json:"initContainers,omitempty"`
 }
 
 // Password allows to refer to a Secret containing password for Redis

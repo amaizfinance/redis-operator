@@ -182,8 +182,8 @@ func (in *RedisSpec) DeepCopyInto(out *RedisSpec) {
 	}
 	in.Redis.DeepCopyInto(&out.Redis)
 	in.Exporter.DeepCopyInto(&out.Exporter)
-	if in.Inits != nil {
-		in, out := &in.Inits, &out.Inits
+	if in.InitContainers != nil {
+		in, out := &in.InitContainers, &out.InitContainers
 		*out = make([]v1.Container, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])

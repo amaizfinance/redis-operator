@@ -312,7 +312,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref common.ReferenceCallback) common
 							Ref:         ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec"),
 						},
 					},
-					"inits": {
+					"initContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Pod initContainers",
 							Type:        []string{"array"},
@@ -330,7 +330,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref common.ReferenceCallback) common
 			},
 		},
 		Dependencies: []string{
-			"./pkg/apis/k8s/v1alpha1.ContainerSpec", "./pkg/apis/k8s/v1alpha1.Password", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PersistentVolumeClaim", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Toleration"},
+			"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec", "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Password", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PersistentVolumeClaim", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Toleration", "k8s.io/api/core/v1.Volume"},
 	}
 }
 
