@@ -71,6 +71,11 @@ spec:
                 image:
                   description: Image is a standard path for a Container image
                   type: string
+                initialDelaySeconds:
+                  description: 'Number of seconds after the container has started
+                    before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                  format: int32
+                  type: integer
                 resources:
                   description: Resources describes the compute resource requirements
                   type: object
@@ -83,6 +88,11 @@ spec:
               type: object
             imagePullSecrets:
               description: 'Pod ImagePullSecrets More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod'
+              items:
+                type: object
+              type: array
+            initContainers:
+              description: Pod initContainers
               items:
                 type: object
               type: array
@@ -104,6 +114,11 @@ spec:
                 image:
                   description: Image is a standard path for a Container image
                   type: string
+                initialDelaySeconds:
+                  description: 'Number of seconds after the container has started
+                    before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                  format: int32
+                  type: integer
                 resources:
                   description: Resources describes the compute resource requirements
                   type: object
@@ -128,6 +143,11 @@ spec:
               type: string
             tolerations:
               description: Pod tolerations
+              items:
+                type: object
+              type: array
+            volumes:
+              description: Volumes for StatefulSet
               items:
                 type: object
               type: array

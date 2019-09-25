@@ -3,6 +3,7 @@ module github.com/amaizfinance/redis-operator
 go 1.13
 
 require (
+	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0
 	github.com/go-openapi/spec v0.19.0
 	github.com/go-redis/redis v6.15.5+incompatible
