@@ -99,7 +99,7 @@ spec:
 
   # Redis exporter container definition (optional)
   exporter:
-    image: oliver006/redis_exporter:v1.0.3
+    image: oliver006/redis_exporter:v1.2.1
     resources:
       limits:
         cpu: 50m

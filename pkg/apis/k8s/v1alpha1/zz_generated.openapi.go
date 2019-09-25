@@ -25,12 +25,12 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec": schema_pkg_apis_k8s_v1alpha1_ContainerSpec(ref),
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Password":      schema_pkg_apis_k8s_v1alpha1_Password(ref),
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Redis":         schema_pkg_apis_k8s_v1alpha1_Redis(ref),
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisList":     schema_pkg_apis_k8s_v1alpha1_RedisList(ref),
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisSpec":     schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref),
-		"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisStatus":   schema_pkg_apis_k8s_v1alpha1_RedisStatus(ref),
+		"./pkg/apis/k8s/v1alpha1.ContainerSpec": schema_pkg_apis_k8s_v1alpha1_ContainerSpec(ref),
+		"./pkg/apis/k8s/v1alpha1.Password":      schema_pkg_apis_k8s_v1alpha1_Password(ref),
+		"./pkg/apis/k8s/v1alpha1.Redis":         schema_pkg_apis_k8s_v1alpha1_Redis(ref),
+		"./pkg/apis/k8s/v1alpha1.RedisList":     schema_pkg_apis_k8s_v1alpha1_RedisList(ref),
+		"./pkg/apis/k8s/v1alpha1.RedisSpec":     schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref),
+		"./pkg/apis/k8s/v1alpha1.RedisStatus":   schema_pkg_apis_k8s_v1alpha1_RedisStatus(ref),
 	}
 }
 
@@ -124,12 +124,12 @@ func schema_pkg_apis_k8s_v1alpha1_Redis(ref common.ReferenceCallback) common.Ope
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisSpec"),
+							Ref: ref("./pkg/apis/k8s/v1alpha1.RedisSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisStatus"),
+							Ref: ref("./pkg/apis/k8s/v1alpha1.RedisStatus"),
 						},
 					},
 				},
@@ -137,7 +137,7 @@ func schema_pkg_apis_k8s_v1alpha1_Redis(ref common.ReferenceCallback) common.Ope
 			},
 		},
 		Dependencies: []string{
-			"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisSpec", "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.RedisStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"./pkg/apis/k8s/v1alpha1.RedisSpec", "./pkg/apis/k8s/v1alpha1.RedisStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -168,7 +168,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisList(ref common.ReferenceCallback) common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Redis"),
+										Ref: ref("./pkg/apis/k8s/v1alpha1.Redis"),
 									},
 								},
 							},
@@ -179,7 +179,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisList(ref common.ReferenceCallback) common
 			},
 		},
 		Dependencies: []string{
-			"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Redis"},
+			"./pkg/apis/k8s/v1alpha1.Redis"},
 	}
 }
 
@@ -212,7 +212,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref common.ReferenceCallback) common
 					},
 					"password": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Password"),
+							Ref: ref("./pkg/apis/k8s/v1alpha1.Password"),
 						},
 					},
 					"annotations": {
@@ -303,13 +303,13 @@ func schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref common.ReferenceCallback) common
 					"redis": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Redis container specification",
-							Ref:         ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec"),
+							Ref:         ref("./pkg/apis/k8s/v1alpha1.ContainerSpec"),
 						},
 					},
 					"exporter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Exporter container specification",
-							Ref:         ref("github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec"),
+							Ref:         ref("./pkg/apis/k8s/v1alpha1.ContainerSpec"),
 						},
 					},
 					"initContainers": {
@@ -330,7 +330,7 @@ func schema_pkg_apis_k8s_v1alpha1_RedisSpec(ref common.ReferenceCallback) common
 			},
 		},
 		Dependencies: []string{
-			"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.ContainerSpec", "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1.Password", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PersistentVolumeClaim", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Toleration", "k8s.io/api/core/v1.Volume"},
+			"./pkg/apis/k8s/v1alpha1.ContainerSpec", "./pkg/apis/k8s/v1alpha1.Password", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PersistentVolumeClaim", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Toleration", "k8s.io/api/core/v1.Volume"},
 	}
 }
 
