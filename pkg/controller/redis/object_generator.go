@@ -398,6 +398,7 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 					SecurityContext:    r.Spec.SecurityContext,
 					ImagePullSecrets:   r.Spec.ImagePullSecrets,
 					Affinity:           r.Spec.Affinity,
+					NodeSelector:       r.Spec.NodeSelector,
 					Tolerations:        r.Spec.Tolerations,
 					PriorityClassName:  r.Spec.PriorityClassName,
 				},
