@@ -18,6 +18,7 @@ github.com/appscode/jsonpatch
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
 github.com/beorn7/perks/quantile
 # github.com/cenkalti/backoff/v3 v3.0.0
+## explicit
 github.com/cenkalti/backoff/v3
 # github.com/census-instrumentation/opencensus-proto v0.2.0
 github.com/census-instrumentation/opencensus-proto/gen-go/agent/common/v1
@@ -49,10 +50,12 @@ github.com/go-openapi/jsonpointer
 # github.com/go-openapi/jsonreference v0.19.0
 github.com/go-openapi/jsonreference
 # github.com/go-openapi/spec v0.19.0
+## explicit
 github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.19.0
 github.com/go-openapi/swag
 # github.com/go-redis/redis v6.15.5+incompatible
+## explicit
 github.com/go-redis/redis
 github.com/go-redis/redis/internal
 github.com/go-redis/redis/internal/consistenthash
@@ -127,6 +130,7 @@ github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
 # github.com/operator-framework/operator-sdk v0.10.0
+## explicit
 github.com/operator-framework/operator-sdk/pkg/k8sutil
 github.com/operator-framework/operator-sdk/pkg/kube-metrics
 github.com/operator-framework/operator-sdk/pkg/leader
@@ -160,8 +164,10 @@ github.com/rogpeppe/go-internal/semver
 github.com/spf13/afero
 github.com/spf13/afero/mem
 # github.com/spf13/cast v1.3.0
+## explicit
 github.com/spf13/cast
 # github.com/spf13/pflag v1.0.3
+## explicit
 github.com/spf13/pflag
 # go.opencensus.io v0.20.0
 go.opencensus.io
@@ -194,6 +200,7 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 # golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
+## explicit
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/ssh/terminal
@@ -291,6 +298,7 @@ gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
 # k8s.io/api v0.0.0-20190612125737-db0771252981 => k8s.io/api v0.0.0-20190222213804-5cb15d344471
+## explicit
 k8s.io/api/admission/v1beta1
 k8s.io/api/admissionregistration/v1alpha1
 k8s.io/api/admissionregistration/v1beta1
@@ -328,6 +336,7 @@ k8s.io/api/storage/v1beta1
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1
 # k8s.io/apimachinery v0.0.0-20190612125636-6a5db36e93ad => k8s.io/apimachinery v0.0.0-20190221213512-86fb29eff628
+## explicit
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/api/resource
@@ -372,6 +381,7 @@ k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
 # k8s.io/client-go v11.0.0+incompatible => k8s.io/client-go v0.0.0-20190228174230-b40b2a5939e4
+## explicit
 k8s.io/client-go/discovery
 k8s.io/client-go/dynamic
 k8s.io/client-go/kubernetes
@@ -453,6 +463,7 @@ k8s.io/gengo/types
 # k8s.io/klog v0.3.1
 k8s.io/klog
 # k8s.io/kube-openapi v0.0.0-20190603182131-db7b694dc208
+## explicit
 k8s.io/kube-openapi/pkg/common
 k8s.io/kube-openapi/pkg/util/proto
 # k8s.io/kube-state-metrics v1.6.0 => k8s.io/kube-state-metrics v1.6.0
@@ -460,6 +471,7 @@ k8s.io/kube-state-metrics/pkg/collector
 k8s.io/kube-state-metrics/pkg/metric
 k8s.io/kube-state-metrics/pkg/metrics_store
 # sigs.k8s.io/controller-runtime v0.1.12 => sigs.k8s.io/controller-runtime v0.1.12
+## explicit
 sigs.k8s.io/controller-runtime/pkg/cache
 sigs.k8s.io/controller-runtime/pkg/cache/internal
 sigs.k8s.io/controller-runtime/pkg/client
@@ -491,6 +503,7 @@ sigs.k8s.io/controller-runtime/pkg/webhook/admission/types
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
 sigs.k8s.io/controller-runtime/pkg/webhook/types
 # sigs.k8s.io/controller-tools v0.1.10 => sigs.k8s.io/controller-tools v0.1.11-0.20190411181648-9d55346c2bde
+## explicit
 sigs.k8s.io/controller-tools/pkg/crd/generator
 sigs.k8s.io/controller-tools/pkg/crd/util
 sigs.k8s.io/controller-tools/pkg/internal/codegen
@@ -499,3 +512,11 @@ sigs.k8s.io/controller-tools/pkg/internal/general
 sigs.k8s.io/controller-tools/pkg/util
 # sigs.k8s.io/yaml v1.1.0
 sigs.k8s.io/yaml
+# k8s.io/api => k8s.io/api v0.0.0-20190222213804-5cb15d344471
+# k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20190228180357-d002e88f6236
+# k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20190221213512-86fb29eff628
+# k8s.io/client-go => k8s.io/client-go v0.0.0-20190228174230-b40b2a5939e4
+# github.com/coreos/prometheus-operator => github.com/coreos/prometheus-operator v0.29.0
+# k8s.io/kube-state-metrics => k8s.io/kube-state-metrics v1.6.0
+# sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.1.12
+# sigs.k8s.io/controller-tools => sigs.k8s.io/controller-tools v0.1.11-0.20190411181648-9d55346c2bde

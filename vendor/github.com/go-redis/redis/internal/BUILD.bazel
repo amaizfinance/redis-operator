@@ -11,7 +11,7 @@ go_library(
     ],
     importmap = "github.com/amaizfinance/redis-operator/vendor/github.com/go-redis/redis/internal",
     importpath = "github.com/go-redis/redis/internal",
-    visibility = ["//visibility:public"],
+    visibility = ["//vendor/github.com/go-redis/redis:__subpackages__"],
     deps = [
         "//vendor/github.com/go-redis/redis/internal/proto:go_default_library",
         "//vendor/github.com/go-redis/redis/internal/util:go_default_library",

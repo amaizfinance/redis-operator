@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "byteorder.go",
         "cpu.go",
+        "cpu_aix_ppc64.go",
         "cpu_arm.go",
         "cpu_gc_s390x.go",
         "cpu_gc_x86.go",
@@ -16,10 +17,17 @@ go_library(
         "cpu_mipsx.go",
         "cpu_other_arm64.go",
         "cpu_s390x.s",
+        "cpu_wasm.go",
         "cpu_x86.go",
         "cpu_x86.s",
     ],
     importmap = "github.com/amaizfinance/redis-operator/vendor/golang.org/x/sys/cpu",
     importpath = "golang.org/x/sys/cpu",
     visibility = ["//visibility:public"],
+    deps = select({
+        "@io_bazel_rules_go//go/platform:aix_ppc64": [
+            "//vendor/golang.org/x/sys/unix:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
 )

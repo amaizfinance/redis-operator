@@ -1,4 +1,3 @@
-# https://github.com/bazelbuild/rules_docker/issues/842
-build --host_force_python=PY2 --stamp --workspace_status_command ./hack/print-status.sh
-run --host_force_python=PY2 --stamp --workspace_status_command ./hack/print-status.sh
-test --host_force_python=PY2 --sandbox_debug --test_output=errors
+build --stamp --workspace_status_command ./hack/print-status.sh
+run --stamp --workspace_status_command ./hack/print-status.sh
+test --sandbox_debug --test_output=errors

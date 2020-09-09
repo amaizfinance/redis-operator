@@ -1,10 +1,14 @@
 ---
 kind: pipeline
 name: redis-operator
-steps:
 
+platform:
+  os: linux
+  arch: amd64
+
+steps:
 - name: test
-  image: l.gcr.io/google/bazel:0.29.0
+  image: l.gcr.io/google/bazel:3.5.0
   commands:
   - ./hack/build/test.sh
   volumes:
@@ -12,12 +16,12 @@ steps:
     path: /root/.cache
 
 - name: build and push docker image
-  image: l.gcr.io/google/bazel:0.29.0
+  image: l.gcr.io/google/bazel:3.5.0
+  commands:
+  - ./hack/build/push-image.sh
   environment:
     DOCKER_AUTH:
       from_secret: docker-config-json
-  commands:
-  - ./hack/build/push-image.sh
   volumes:
   - name: cache
     path: /root/.cache
@@ -32,6 +36,6 @@ volumes:
 
 ---
 kind: signature
-hmac: 5185b235f68240a5ba70c95fea94c3d76fc07d7ce0ed95bed1ccd01e954c42fd
+hmac: 07ba4b919fa40ac371edaf11e0bde5314f78474c0cd79b9056c7031ab25614f6
 
 ...
