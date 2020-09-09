@@ -56,7 +56,7 @@ Redis can be deployed by creating a `Redis` Custom Resource(CR).
 1. Create a Redis CR that deploys a 3 node Redis replication in high availablilty mode:
 
     ```bash
-    kubectl create -f example/k8s_v1alpha1_redis_cr.yaml
+    kubectl apply -f example/k8s_v1alpha1_redis_cr.yaml
     ```
 
 2. Wait until the `redis-example-...` pods for the Redis replication are up and check the status of 'redis'. It will show the name for the Pod of the current master instance and the total number of replicas in the setup:

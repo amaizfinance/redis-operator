@@ -37,11 +37,11 @@ spec:
   # Hence it will not be able to connect to Pods with the ``old'' password.
   # In scenarios when persistence is turned off all the data will be lost
   # during password rotation.
-  password:
-    # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#secretkeyselector-v1-core
-    secretKeyRef:
-      key: password
-      name: redis-password-secret
+  #  password:
+  #    # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#secretkeyselector-v1-core
+  #    secretKeyRef:
+  #      key: password
+  #      name: redis-password-secret
 
   # affinity, annotations, securityContext, tolerations and priorityClassName (all optional)
   # are added to the resulting StatefulSet's PodTemplate.
@@ -49,15 +49,15 @@ spec:
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
-      - podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-            - key: lol
-              operator: In
-              values:
-              - woot
-          topologyKey: kubernetes.io/hostname
-        weight: 70
+        - podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: lol
+                  operator: In
+                  values:
+                    - woot
+            topologyKey: kubernetes.io/hostname
+          weight: 70
   annotations:
     cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     seccomp.security.alpha.kubernetes.io/pod: runtime/default
@@ -65,16 +65,16 @@ spec:
   # dataVolumeClaimTemplate allows to define a persistent volume template for Redis. (optional)
   # If omitted, emptyDir will be used.
   # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#persistentvolumeclaim-v1-core
-#  dataVolumeClaimTemplate:
-#    metadata:
-#      name: redis-data
-#    spec:
-#      storageClassName: standard
-#      accessModes:
-#      - ReadWriteOnce
-#      resources:
-#        requests:
-#          storage: 1Gi
+  #  dataVolumeClaimTemplate:
+  #    metadata:
+  #      name: redis-data
+  #    spec:
+  #      storageClassName: standard
+  #      accessModes:
+  #      - ReadWriteOnce
+  #      resources:
+  #        requests:
+  #          storage: 1Gi
 
   # Redis container definition (required)
   # image, resources and securityContext are the same as found in v1.Container.
@@ -90,7 +90,7 @@ spec:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - all
+          - all
       readOnlyRootFilesystem: true
       runAsUser: 7777777
       runAsGroup: 7777777
@@ -108,31 +108,31 @@ spec:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - all
+          - all
       readOnlyRootFilesystem: true
       runAsUser: 7777777
       runAsGroup: 7777777
       fsGroup: 7777777
       runAsNonRoot: true
 
-  # To disable THP
-  volumes:
-  - name: sys
-    hostPath:
-      path: /sys
-  initContainers:
-  - name: disable-thp
-    image: busybox
-    command: ["sh", "-c"]
-    args:
-    - |-
-      set -e
-      set -o pipefail
-
-      echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
-
-      grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
-    volumeMounts:
-    - name: sys
-      mountPath: /rootfs/sys
-      type: Directory
+#  To disable THP
+#  volumes:
+#    - name: sys
+#      hostPath:
+#        path: /sys
+#  initContainers:
+#    - name: disable-thp
+#      image: busybox
+#      command: ["sh", "-c"]
+#      args:
+#        - |-
+#          set -e
+#          set -o pipefail
+#
+#          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
+#
+#          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
+#      volumeMounts:
+#        - name: sys
+#          mountPath: /rootfs/sys
+#          type: Directory
