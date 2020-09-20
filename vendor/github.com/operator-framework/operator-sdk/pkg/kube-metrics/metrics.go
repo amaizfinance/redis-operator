@@ -15,16 +15,19 @@
 package kubemetrics
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
-	kcollector "k8s.io/kube-state-metrics/pkg/collector"
 	ksmetric "k8s.io/kube-state-metrics/pkg/metric"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
+	metricsstore "k8s.io/kube-state-metrics/pkg/metrics_store"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 var log = logf.Log.WithName("kubemetrics")
@@ -39,10 +42,11 @@ func GenerateAndServeCRMetrics(cfg *rest.Config,
 	host string, port int32) error {
 	// We have to have at least one namespace.
 	if len(ns) < 1 {
-		return errors.New("namespaces were empty; pass at least one namespace to generate custom resource metrics")
+		return errors.New(
+			"namespaces were empty; pass at least one namespace to generate custom resource metrics")
 	}
 	// Create new unstructured client.
-	var collectors [][]kcollector.Collector
+	var allStores [][]*metricsstore.MetricsStore
 	log.V(1).Info("Starting collecting operator types")
 	// Loop through all the possible operator/custom resource specific types.
 	for _, gvk := range operatorGVKs {
@@ -55,13 +59,23 @@ func GenerateAndServeCRMetrics(cfg *rest.Config,
 		if err != nil {
 			return err
 		}
+		namespaced, err := isNamespaced(gvk, cfg)
+		if err != nil {
+			return err
+		}
+		var gvkStores []*metricsstore.MetricsStore
+		if namespaced {
+			gvkStores = NewNamespacedMetricsStores(dclient, ns, apiVersion, kind, metricFamilies)
+		} else {
+			gvkStores = NewClusterScopedMetricsStores(dclient, apiVersion, kind, metricFamilies)
+		}
 		// Generate collector based on the group/version, kind and the metric families.
-		c := NewCollectors(dclient, ns, apiVersion, kind, metricFamilies)
-		collectors = append(collectors, c)
+
+		allStores = append(allStores, gvkStores)
 	}
 	// Start serving metrics.
 	log.V(1).Info("Starting serving custom resource metrics")
-	go ServeMetrics(collectors, host, port)
+	go ServeMetrics(allStores, host, port)
 
 	return nil
 }
@@ -90,4 +104,40 @@ func generateMetricFamilies(kind string) []ksmetric.FamilyGenerator {
 			},
 		},
 	}
+}
+
+// GetNamespacesForMetrics wil return all namespaces which will be used to export the metrics
+func GetNamespacesForMetrics(operatorNs string) ([]string, error) {
+	ns := []string{operatorNs}
+
+	// Get the value from WATCH_NAMESPACES
+	watchNamespace, err := k8sutil.GetWatchNamespace()
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate metrics from the WATCH_NAMESPACES value if it contains multiple namespaces
+	if strings.Contains(watchNamespace, ",") {
+		ns = strings.Split(watchNamespace, ",")
+	}
+	return ns, nil
+}
+
+func isNamespaced(gvk schema.GroupVersionKind, cfg *rest.Config) (bool, error) {
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(cfg)
+	if err != nil {
+		log.Error(err, "Unable to get discovery client")
+		return false, err
+	}
+	resourceList, err := discoveryClient.ServerResourcesForGroupVersion(gvk.GroupVersion().String())
+	if err != nil {
+		log.Error(err, "Unable to get resource list for", "apiversion", gvk.GroupVersion().String())
+		return false, err
+	}
+	for _, apiResource := range resourceList.APIResources {
+		if apiResource.Kind == gvk.Kind {
+			return apiResource.Namespaced, nil
+		}
+	}
+	return false, errors.New("unable to find type: " + gvk.String() + " in server")
 }

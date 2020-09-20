@@ -41,9 +41,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
@@ -199,10 +199,11 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 	// all the kubernetes resources are OK.
 	// Redis failover state should be checked and reconfigured if needed.
 	podList := new(corev1.PodList)
-	if err := reconciler.client.List(ctx, &client.ListOptions{
-		LabelSelector: labels.SelectorFromSet(redisObject.Labels),
-		Namespace:     request.Namespace,
-	}, podList); err != nil {
+	listOpts := []client.ListOption{
+		client.InNamespace(request.Namespace),
+		client.MatchingLabelsSelector{Selector: labels.SelectorFromSet(redisObject.Labels)},
+	}
+	if err := reconciler.client.List(ctx, podList, listOpts...); err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list Pods: %s", err)
 	}
 
