@@ -43,7 +43,7 @@ spec:
   #      key: password
   #      name: redis-password-secret
 
-  # affinity, annotations, securityContext, tolerations and priorityClassName (all optional)
+  # affinity, annotations, securityContext, nodeSelector tolerations and priorityClassName (all optional)
   # are added to the resulting StatefulSet's PodTemplate.
   # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#podspec-v1-core
   affinity:

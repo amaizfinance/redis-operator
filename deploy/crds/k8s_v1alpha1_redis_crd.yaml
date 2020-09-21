@@ -141,6 +141,13 @@ spec:
               description: 'Pod ServiceAccountName is the name of the ServiceAccount
                 to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/'
               type: string
+            nodeSelector:
+              additionalProperties:
+                type: string
+              description: NodeSelector specifies a map of key-value pairs. For the
+                pod to be eligible to run on a node, the node must have each of the
+                indicated key-value pairs as labels.
+              type: object
             tolerations:
               description: Pod tolerations
               items:

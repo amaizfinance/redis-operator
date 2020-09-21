@@ -57,6 +57,10 @@ type RedisSpec struct {
 	SecurityContext *corev1.PodSecurityContext `json:"securityContext,omitempty"`
 	// Pod affinity
 	Affinity *corev1.Affinity `json:"affinity,omitempty"`
+	// NodeSelector specifies a map of key-value pairs. For the pod to be
+	// eligible to run on a node, the node must have each of the indicated
+	// key-value pairs as labels.
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
 	// Pod tolerations
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
 	// Pod ServiceAccountName is the name of the ServiceAccount to use to run this pod.
