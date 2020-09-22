@@ -29,19 +29,13 @@ Fundamental things to know about Redis Operator:
 
 ### Deploying the Redis operator
 
-1. Create a namespace for the operator:
+1. Create all the necessary resources and deploy the operator:
 
     ```bash
-    kubectl create namespace redis-operator
+    kubectl apply -k deploy
     ```
 
-2. Create all the necessary resources and deploy the operator:
-
-    ```bash
-    kubectl apply -Rf deploy
-    ```
-
-3. Verify that the operator is running:
+2. Verify that the operator is running:
 
     ```bash
     $ kubectl -n redis-operator get deployment
@@ -64,20 +58,31 @@ Redis can be deployed by creating a `Redis` Custom Resource(CR).
     ```bash
     $ kubectl get redis example
     NAME      MASTER            REPLICAS   DESIRED   AGE
-    example   redis-example-0   3          3         24d
+    example   redis-example-0   3          3         5m
     ```
 
-3. Scale the deployment:
+3. Verify that Redis is working as expected:
+
+    ```bash
+    $ kubectl exec $(k get redis example -o jsonpath={.status.master}) -c redis redis-cli set lol woot
+    OK
+    $ kubectl delete pod -l redis=example,role=master
+    pod "redis-example-0" deleted
+    $ kubectl exec $(k get redis example -o jsonpath={.status.master}) -c redis redis-cli get lol
+    woot
+    ```
+
+4. Scale the deployment:
 
     ```bash
     $ kubectl scale redis example --replicas 4
     redis.k8s.amaiz.com/example scaled
-    $ kubectl get redis example
+    $ kubectl get redis
     NAME      MASTER            REPLICAS   DESIRED   AGE
-    example   redis-example-0   4          4         24d
+    example   redis-example-1   4          4         10m
     ```
 
-4. Redis Operator creates the following resources owned by the corresponding `Redis` CR. Please note that the name of `Redis` (`example` in this case) is used as an infix or suffix for the names of the generated resources:
+5. Redis Operator creates the following resources owned by the corresponding `Redis` CR. Please note that the name of `Redis` (`example` in this case) is used as an infix or suffix for the names of the generated resources:
 
     * Secret `redis-example` (in case the password is set up)
     * ConfigMap `redis-example`
@@ -90,7 +95,7 @@ Redis can be deployed by creating a `Redis` Custom Resource(CR).
 
 ### Configuring Redis
 
-All configuration of Redis is done via editing the `Redis` resourse file. Full annotated example can be found in the `examples` directory of the repo.
+All configuration of Redis is done via editing the `Redis` resourse file. Fully annotated example can be found in the `examples` directory of the repo.
 
 ## Uninstalling Redis operator
 
