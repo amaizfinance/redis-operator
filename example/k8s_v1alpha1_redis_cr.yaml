@@ -80,7 +80,7 @@ spec:
   # image, resources and securityContext are the same as found in v1.Container.
   # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#container-v1-core
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
     initialDelaySeconds: 10
     resources:
       limits:
@@ -99,7 +99,7 @@ spec:
 
   # Redis exporter container definition (optional)
   exporter:
-    image: oliver006/redis_exporter:v1.2.1
+    image: oliver006/redis_exporter:v1.11.1
     resources:
       limits:
         cpu: 50m
