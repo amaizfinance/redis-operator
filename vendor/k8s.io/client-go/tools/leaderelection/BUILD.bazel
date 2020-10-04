@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "healthzadaptor.go",
         "leaderelection.go",
+        "metrics.go",
     ],
     importmap = "github.com/amaizfinance/redis-operator/vendor/k8s.io/client-go/tools/leaderelection",
     importpath = "k8s.io/client-go/tools/leaderelection",
