@@ -267,6 +267,7 @@ podIter:
 	for i := range podList.Items {
 		go func(pod corev1.Pod, masterAddress string, wg *sync.WaitGroup) {
 			defer wg.Done()
+			podPatch := client.MergeFrom(pod.DeepCopy())
 			if pod.Status.PodIP == masterAddress {
 				select {
 				case masterChan <- pod.Name:
@@ -285,7 +286,7 @@ podIter:
 				}
 				pod.Labels[roleLabelKey] = replicaLabel
 			}
-			if err := reconciler.client.Update(ctx, &pod); err != nil {
+			if err := reconciler.client.Patch(ctx, &pod, podPatch); err != nil {
 				errChan <- err
 			}
 		}(podList.Items[i], master.Host, &wg)

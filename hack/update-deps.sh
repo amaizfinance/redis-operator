@@ -10,8 +10,8 @@ true >go.mod.bzl
 true >go.sum
 
 # verify and vendor all dependencies
-go mod verify
 go mod tidy -v
+go mod verify
 go mod vendor
 
 # remove all files that were fetched with previous commands in order to avoid conflicts with proto rules
