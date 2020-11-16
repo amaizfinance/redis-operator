@@ -289,7 +289,6 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 			Handler:             corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
 			InitialDelaySeconds: r.Spec.Redis.InitialDelaySeconds,
 		},
-		ImagePullPolicy: corev1.PullAlways,
 		SecurityContext: r.Spec.Redis.SecurityContext,
 	}}
 
@@ -363,7 +362,6 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 			Resources:       r.Spec.Exporter.Resources,
 			LivenessProbe:   &corev1.Probe{Handler: corev1.Handler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
 			ReadinessProbe:  &corev1.Probe{Handler: corev1.Handler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
-			ImagePullPolicy: corev1.PullAlways,
 			SecurityContext: r.Spec.Exporter.SecurityContext,
 		})
 
