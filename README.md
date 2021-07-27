@@ -93,6 +93,16 @@ Redis can be deployed by creating a `Redis` Custom Resource(CR).
         * `redis-example-headless` - covers all instances, headless
         * `redis-example-master` - service for access to the master instance
 
+6. Finally, to remove this particular example instance of the `Redis` CR, you can simply delete it, and Redis Operator will take care of cleanup for you.
+
+    ```bash
+    $ kubectl get redis
+    NAME      MASTER            REPLICAS   DESIRED   AGE
+    example   redis-example-1   4          4         10m
+    $ kubectl delete redis example
+    redis.k8s.amaiz.com "example" deleted
+    ```
+
 ### Configuring Redis
 
 All configuration of Redis is done via editing the `Redis` resourse file. Fully annotated example can be found in the `examples` directory of the repo.
