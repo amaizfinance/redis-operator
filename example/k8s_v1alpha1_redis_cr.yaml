@@ -38,14 +38,14 @@ spec:
   # In scenarios when persistence is turned off all the data will be lost
   # during password rotation.
   #  password:
-  #    # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#secretkeyselector-v1-core
+  #    # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#secretkeyselector-v1-core
   #    secretKeyRef:
   #      key: password
   #      name: redis-password-secret
 
   # affinity, annotations, securityContext, nodeSelector tolerations and priorityClassName (all optional)
   # are added to the resulting StatefulSet's PodTemplate.
-  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#podspec-v1-core
+  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#podspec-v1-core
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -61,10 +61,15 @@ spec:
   annotations:
     cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     seccomp.security.alpha.kubernetes.io/pod: runtime/default
+  securityContext:
+    runAsUser: 7777777
+    runAsGroup: 7777777
+    fsGroup: 7777777
+    runAsNonRoot: true
 
   # dataVolumeClaimTemplate allows to define a persistent volume template for Redis. (optional)
   # If omitted, emptyDir will be used.
-  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#persistentvolumeclaim-v1-core
+  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#persistentvolumeclaim-v1-core
   #  dataVolumeClaimTemplate:
   #    metadata:
   #      name: redis-data
@@ -78,7 +83,7 @@ spec:
 
   # Redis container definition (required)
   # image, resources and securityContext are the same as found in v1.Container.
-  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#container-v1-core
+  # More info: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#container-v1-core
   redis:
     image: redis:6-alpine
     initialDelaySeconds: 10
@@ -92,10 +97,6 @@ spec:
         drop:
           - all
       readOnlyRootFilesystem: true
-      runAsUser: 7777777
-      runAsGroup: 7777777
-      fsGroup: 7777777
-      runAsNonRoot: true
 
   # Redis exporter container definition (optional)
   exporter:
@@ -110,10 +111,6 @@ spec:
         drop:
           - all
       readOnlyRootFilesystem: true
-      runAsUser: 7777777
-      runAsGroup: 7777777
-      fsGroup: 7777777
-      runAsNonRoot: true
 
 #  To disable THP
 #  volumes:
