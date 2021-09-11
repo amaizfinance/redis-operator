@@ -155,6 +155,10 @@ func (reconciler *ReconcileRedis) Reconcile(request reconcile.Request) (reconcil
 			return reconcile.Result{}, fmt.Errorf("failed to fetch password: %s", err)
 		}
 
+		if redisObject.Spec.Annotations == nil {
+			redisObject.Spec.Annotations = make(map[string]string)
+		}
+
 		options.password = string(passwordSecret.Data[redisObject.Spec.Password.SecretKeyRef.Key])
 		// Warning: since Redis is pretty fast an outside user can try up to
 		// 150k passwords per second against a good box. This means that you should
