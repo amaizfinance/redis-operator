@@ -1,3 +1,4 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
 # gazelle:prefix github.com/amaizfinance/redis-operator
@@ -5,4 +6,29 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 gazelle(
     name = "gazelle",
     command = "fix",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/amaizfinance/redis-operator",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//api/v1alpha1:go_default_library",
+        "//controllers:go_default_library",
+        "//vendor/github.com/operator-framework/operator-lib/leader:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/runtime:go_default_library",
+        "//vendor/k8s.io/client-go/kubernetes/scheme:go_default_library",
+        "//vendor/k8s.io/client-go/plugin/pkg/client/auth/gcp:go_default_library",
+        "//vendor/sigs.k8s.io/controller-runtime:go_default_library",
+        "//vendor/sigs.k8s.io/controller-runtime/pkg/client/apiutil:go_default_library",
+        "//vendor/sigs.k8s.io/controller-runtime/pkg/log/zap:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "redis-operator",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
 )

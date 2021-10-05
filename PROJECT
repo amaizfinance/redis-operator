@@ -1,0 +1,11 @@
+domain: k8s.amaiz.com
+layout: go.kubebuilder.io/v2
+repo: github.com/amaizfinance/redis-operator
+resources:
+- group: k8s.amaiz.com
+  kind: Redis
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  go.operator-sdk.io/v2-alpha: {}
+
