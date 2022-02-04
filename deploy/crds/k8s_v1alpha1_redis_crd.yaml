@@ -6,7 +6,7 @@ spec:
   group: k8s.amaiz.com
   names:
     kind: Redis
-#    listKind: RedisList
+    listKind: RedisList
     plural: redis
     singular: redis
   scope: Namespaced
