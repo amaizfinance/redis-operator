@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package redis
+package controllers
 
 import (
 	"context"
@@ -37,8 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	k8sv1alpha1 "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1"
-	"github.com/amaizfinance/redis-operator/pkg/redis"
+	k8sv1alpha1 "github.com/amaizfinance/redis-operator/api/v1alpha1"
+	"github.com/amaizfinance/redis-operator/controllers/redis"
 )
 
 var (
@@ -52,9 +52,6 @@ type RedisReconcile struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
-
-// +kubebuilder:rbac:groups=k8s.amaiz.com,resources=redis,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s.amaiz.com,resources=redis/status,verbs=get;update;patch
 
 // Reconcile reads that state of the cluster for a Redis object and makes changes based on the state read
 // and what is in the Redis.Spec

@@ -32,6 +32,16 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.name
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
           resources:
             limits:
               cpu: 100m

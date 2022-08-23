@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package redis
+package controllers
 
 import (
 	"crypto/sha256"
@@ -32,8 +32,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	k8sv1alpha1 "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1"
-	"github.com/amaizfinance/redis-operator/pkg/redis"
+	k8sv1alpha1 "github.com/amaizfinance/redis-operator/api/v1alpha1"
+	"github.com/amaizfinance/redis-operator/controllers/redis"
 )
 
 const (

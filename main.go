@@ -27,8 +27,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1"
-	"github.com/amaizfinance/redis-operator/pkg/controller/redis"
+	"github.com/amaizfinance/redis-operator/api/v1alpha1"
+	"github.com/amaizfinance/redis-operator/controllers"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -83,11 +83,11 @@ func main() {
 
 	setupLog.Info("Registering Components.")
 
-	if err = (&redis.RedisReconcile{
+	if err = (&controllers.RedisReconcile{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Memcached")
+		setupLog.Error(err, "unable to create controller", "controller", "Redis")
 		os.Exit(1)
 	}
 
