@@ -7,4 +7,4 @@ resources:
 - ClusterRole.yaml
 - ClusterRoleBinding.yaml
 - ServiceAccount.yaml
-- ZZ_Deployment.yaml
+- Deployment.yaml

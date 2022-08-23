@@ -1,3 +1,0 @@
-build --stamp --workspace_status_command ./hack/print-status.sh
-run --stamp --workspace_status_command ./hack/print-status.sh
-test --sandbox_debug --test_output=errors

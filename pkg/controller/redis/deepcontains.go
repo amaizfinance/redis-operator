@@ -29,7 +29,7 @@ type visit struct {
 	typ reflect.Type
 }
 
-// deepContains reports whether y is a ``subset'' of x defined as follows.
+// deepContains reports whether y is a “subset” of x defined as follows.
 // It is a relaxation of the reflect.DeepEqual aimed to compare deeply nested values.
 // Value x deeply contains value y if one of the following cases applies.
 // Values of distinct types never contain each other.

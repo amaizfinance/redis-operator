@@ -97,7 +97,7 @@ type RedisSpec struct {
 // fired afterwards will trigger the rolling upgrade.
 // Redis operator does not store the password internally and reads it
 // from the Secret any time the Reconcile is called.
-// Hence it will not be able to connect to Pods with the ``old'' password.
+// Hence it will not be able to connect to Pods with the “old” password.
 // In scenarios when persistence is turned off all the data will be lost
 // during password rotation.
 type Password struct {

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-operator
+  namespace: redis-operator
+  labels:
+    app.kubernetes.io/name: redis-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis-operator
+    spec:
+      containers:
+        - name: redis-operator
+          image: shareed2k/redis-operator:v0.3.0
+          args:
+            - '--leader-elect'
+            - '--zap-time-encoding=iso8601'
+            - '--zap-encoder=console'
+            - '--zap-log-level=info'
+          env:
+            - name: WATCH_NAMESPACE
+            - name: OPERATOR_NAME
+              value: redis-operator
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources:
+            limits:
+              cpu: 100m
+              memory: 192Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1001
+      restartPolicy: Always
+      serviceAccountName: redis-operator
+      securityContext:
+        fsGroup: 1001

@@ -15,6 +15,7 @@
 package redis
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
@@ -24,7 +25,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v3"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/cast"
 )
 
@@ -100,9 +101,9 @@ func buildInfoReplicationRe() *regexp.Regexp {
 
 // client is an extract of redis.Cmdable
 type client interface {
-	Ping() *redis.StatusCmd
-	Info(section ...string) *redis.StringCmd
-	TxPipelined(fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
+	Ping(ctx context.Context) *redis.StatusCmd
+	Info(ctx context.Context, section ...string) *redis.StringCmd
+	TxPipelined(ctx context.Context, fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
 	Close() error
 }
 
@@ -183,9 +184,10 @@ func (i *instance) replicaOf(master Address) (err error) {
 	 *
 	 * Note that we don't check the replies returned by commands, since we
 	 * will observe instead the effects in the next INFO output. */
-	_, err = i.client.TxPipelined(func(pipe redis.Pipeliner) error {
-		pipe.SlaveOf(master.Host, master.Port)
-		pipe.ClientKillByFilter("TYPE", "NORMAL")
+	ctx := context.TODO()
+	_, err = i.client.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.SlaveOf(ctx, master.Host, master.Port)
+		pipe.ClientKillByFilter(ctx, "TYPE", "NORMAL")
 		return nil
 	})
 
@@ -193,7 +195,7 @@ func (i *instance) replicaOf(master Address) (err error) {
 }
 
 func (i *instance) getInfo() (info string, err error) {
-	info, err = i.client.Info("replication").Result()
+	info, err = i.client.Info(context.TODO(), "replication").Result()
 	if err != nil {
 		return "", fmt.Errorf("getting info replication failed for %s: %s", i.Address, err)
 	}
@@ -470,7 +472,7 @@ func New(password string, addresses ...Address) (Replication, error) {
 		}
 
 		// check connection and add the instance if Ping succeeds
-		if err := r.client.Ping().Err(); err != nil {
+		if err := r.client.Ping(context.TODO()).Err(); err != nil {
 			// TODO: handle -BUSY status
 			_ = r.client.Close()
 			continue

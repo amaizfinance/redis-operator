@@ -30,6 +30,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	k8sv1alpha1 "github.com/amaizfinance/redis-operator/pkg/apis/k8s/v1alpha1"
 	"github.com/amaizfinance/redis-operator/pkg/redis"
@@ -115,7 +116,7 @@ type objectGeneratorOptions struct {
 }
 
 // generateObject is a Kubernetes object factory, returns the name of the object and the object itself
-func generateObject(r *k8sv1alpha1.Redis, object k8sruntime.Object, options objectGeneratorOptions) k8sruntime.Object {
+func generateObject(r *k8sv1alpha1.Redis, object k8sruntime.Object, options objectGeneratorOptions) client.Object {
 	switch object.(type) {
 	case *corev1.Secret:
 		return generateSecret(r, options.password)
@@ -282,11 +283,11 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 			SubPath:   configFileName,
 		}},
 		LivenessProbe: &corev1.Probe{
-			Handler:             corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
+			ProbeHandler:        corev1.ProbeHandler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
 			InitialDelaySeconds: r.Spec.Redis.InitialDelaySeconds,
 		},
 		ReadinessProbe: &corev1.Probe{
-			Handler:             corev1.Handler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
+			ProbeHandler:        corev1.ProbeHandler{Exec: &corev1.ExecAction{Command: []string{"redis-cli", "ping"}}},
 			InitialDelaySeconds: r.Spec.Redis.InitialDelaySeconds,
 		},
 		SecurityContext: r.Spec.Redis.SecurityContext,
@@ -360,8 +361,8 @@ func generateStatefulSet(r *k8sv1alpha1.Redis, password string) *appsv1.Stateful
 				},
 			}},
 			Resources:       r.Spec.Exporter.Resources,
-			LivenessProbe:   &corev1.Probe{Handler: corev1.Handler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
-			ReadinessProbe:  &corev1.Probe{Handler: corev1.Handler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
+			LivenessProbe:   &corev1.Probe{ProbeHandler: corev1.ProbeHandler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
+			ReadinessProbe:  &corev1.Probe{ProbeHandler: corev1.ProbeHandler{HTTPGet: &corev1.HTTPGetAction{Path: "/", Port: intstr.FromInt(exporterPort)}}},
 			SecurityContext: r.Spec.Exporter.SecurityContext,
 		})
 
